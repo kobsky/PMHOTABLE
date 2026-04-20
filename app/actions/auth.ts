@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { getAuthenticatedClient, createClient } from '@/lib/supabase/server'
+import { headers } from 'next/headers'
 
 const ChangePasswordSchema = z.object({
   password: z.string().min(6, 'Hasło musi mieć min. 6 znaków'),
@@ -41,10 +42,16 @@ export async function requestPasswordReset(
   const supabase = await createClient()
   if (!supabase) return { error: 'Brak konfiguracji Supabase' }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  let baseUrl = process.env.NEXT_PUBLIC_APP_URL
+  if (!baseUrl) {
+    const headersList = await headers()
+    const host = headersList.get('host') || 'localhost:3000'
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    baseUrl = `${protocol}://${host}`
+  }
 
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${baseUrl}/auth/callback?next=/settings/account`,
+    redirectTo: `${baseUrl}/auth/callback?next=/reset-password`,
   })
 
   if (error) {
