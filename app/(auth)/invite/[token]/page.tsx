@@ -26,7 +26,7 @@ function CompassIcon() {
 
 export default function InviteAcceptPage() {
   const params = useParams()
-  const token = typeof params?.token === 'string' ? params.token : ''
+  const token = Array.isArray(params?.token) ? params.token[0] : params?.token || ''
 
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
