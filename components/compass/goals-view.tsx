@@ -1081,7 +1081,7 @@ function DeleteProjectConfirm({ project, onCancel, onConfirm }: DeleteProjectCon
             <div>
               <p className="text-sm text-compass-text">
                 Czy na pewno chcesz usunąć projekt{' '}
-                <span className="font-semibold">„{project.name}"</span>?
+                <span className="font-semibold">&quot;{project.name}&quot;</span>?
               </p>
               <p className="text-xs text-compass-muted mt-1">
                 Projekt zostanie zarchiwizowany i zniknie z listy. Powiązane zadania nie zostaną usunięte.

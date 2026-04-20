@@ -381,7 +381,7 @@ function AssigneeTester({ typeColors }: { typeColors: Record<string, string> }) 
         {!result && !error && !isPending && (
           <div className="flex flex-col items-center justify-center h-48 border border-dashed border-compass-border rounded-[4px]">
             <Sparkles size={20} className="text-compass-dim mb-2" strokeWidth={1} />
-            <p className="text-xs text-compass-dim">Wypełnij formularz i kliknij "Rekomenduj"</p>
+            <p className="text-xs text-compass-dim">Wypełnij formularz i kliknij &quot;Rekomenduj&quot;</p>
             {!process.env.ANTHROPIC_API_KEY && (
               <p className="text-xs text-compass-warning mt-2">ANTHROPIC_API_KEY nie ustawiony</p>
             )}
