@@ -1,0 +1,2 @@
+Zawsze ignoruj przy skanowaniu: 
+node_modules/, .next/, dist/, out/, .git/, public/fonts/, public/images/

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir C:\\\\Users\\\\User\\\\Desktop\\\\PMHOTABLE:*)",
+      "Bash(dir \"C:\\\\Users\\\\User\\\\Desktop\\\\PMHOTABLE\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm.cmd tsc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(wc -l \"C:\\\\Users\\\\User\\\\Desktop\\\\PMHOTABLE\"/components/compass/*.tsx \"C:\\\\Users\\\\User\\\\Desktop\\\\PMHOTABLE\"/app/actions/*.ts \"C:\\\\Users\\\\User\\\\Desktop\\\\PMHOTABLE\"/lib/supabase/*.ts)",
+      "Bash(pnpm install:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
+}

@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: #0F0F0E;
+    color: #EAE8DF;
+    font-family: var(--font-body), system-ui, sans-serif;
+  }
+
+  ::selection {
+    background-color: rgba(232, 98, 42, 0.22);
+    color: #EAE8DF;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2A2A27;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3A3A36;
+  }
+}
+
+@layer components {
+  /* Cards */
+  .compass-card {
+    @apply bg-compass-surface border border-compass-border;
+    border-radius: 3px;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .compass-card-hover {
+    @apply compass-card cursor-pointer;
+  }
+  .compass-card-hover:hover {
+    @apply border-compass-border-strong bg-compass-surface-2;
+    box-shadow: 0 0 0 1px rgba(232, 98, 42, 0.08), 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Inputs */
+  .compass-input {
+    @apply w-full bg-compass-surface-2 border border-compass-border
+           text-compass-text placeholder:text-compass-dim
+           px-3 py-2 text-sm font-body
+           focus:outline-none
+           transition-all duration-150;
+    border-radius: 3px;
+  }
+  .compass-input:focus {
+    border-color: rgba(232, 98, 42, 0.6);
+    box-shadow: 0 0 0 2px rgba(232, 98, 42, 0.12);
+  }
+
+  /* Buttons */
+  .compass-btn {
+    @apply inline-flex items-center justify-center gap-1.5
+           px-3.5 py-2 text-sm font-medium
+           transition-all duration-150
+           focus:outline-none focus-visible:ring-1 focus-visible:ring-compass-accent/60
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    border-radius: 3px;
+  }
+
+  .compass-btn-primary {
+    @apply compass-btn text-white active:scale-[0.98];
+    background: linear-gradient(135deg, #E8622A 0%, #F07238 100%);
+    box-shadow: 0 1px 3px rgba(232, 98, 42, 0.3);
+  }
+  .compass-btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #F07238 0%, #F5804A 100%);
+    box-shadow: 0 2px 8px rgba(232, 98, 42, 0.4);
+  }
+  .compass-btn-primary:disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+
+  .compass-btn-ghost {
+    @apply compass-btn text-compass-muted
+           hover:text-compass-text hover:bg-compass-surface-2;
+  }
+
+  .compass-btn-outline {
+    @apply compass-btn border border-compass-border text-compass-muted
+           hover:border-compass-border-strong hover:text-compass-text
+           hover:bg-compass-surface-2;
+  }
+
+  .compass-btn-danger {
+    @apply compass-btn bg-compass-danger-dim text-compass-danger border border-compass-danger/30
+           hover:bg-compass-danger hover:text-white;
+  }
+
+  /* Labels */
+  .compass-label {
+    @apply font-mono text-2xs uppercase tracking-widest text-compass-dim;
+  }
+
+  /* Badge */
+  .compass-badge {
+    @apply inline-flex items-center gap-1 px-1.5 py-0.5
+           font-mono text-2xs uppercase tracking-wide
+           border rounded-[2px];
+  }
+
+  .compass-badge-todo {
+    @apply compass-badge bg-compass-surface-2 border-compass-border text-compass-muted;
+  }
+
+  .compass-badge-progress {
+    @apply compass-badge bg-compass-warning-dim border-compass-warning/30 text-compass-warning;
+  }
+
+  .compass-badge-done {
+    @apply compass-badge bg-compass-success-dim border-compass-success/30 text-compass-success;
+  }
+
+  .compass-badge-danger {
+    @apply compass-badge bg-compass-danger-dim border-compass-danger/30 text-compass-danger;
+  }
+
+  .compass-badge-accent {
+    @apply compass-badge bg-compass-accent-dim border-compass-accent/30 text-compass-accent;
+  }
+
+  /* Divider */
+  .compass-divider {
+    @apply border-t border-compass-border;
+  }
+
+  /* Section header */
+  .compass-section-header {
+    @apply flex items-center justify-between py-3 px-4;
+  }
+
+  /* Priority dot */
+  .priority-dot {
+    @apply w-1.5 h-1.5 rounded-full flex-shrink-0;
+  }
+
+  .priority-dot-low    { @apply priority-dot bg-compass-dim; }
+  .priority-dot-medium { @apply priority-dot bg-compass-muted; }
+  .priority-dot-high   { @apply priority-dot bg-compass-warning; }
+  .priority-dot-urgent { @apply priority-dot bg-compass-danger; }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display), Georgia, serif; }
+  .font-mono    { font-family: var(--font-mono), ui-monospace, monospace; }
+  .font-body    { font-family: var(--font-body), system-ui, sans-serif; }
+
+  .text-balance { text-wrap: balance; }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Gradient overlay for long text */
+  .gradient-fade-r {
+    mask-image: linear-gradient(to right, black 80%, transparent 100%);
+  }
+
+  /* Clickable task card affordance */
+  .task-card-interactive {
+    cursor: pointer;
+    transition: border-color 120ms ease, background-color 120ms ease, transform 120ms ease;
+  }
+  .task-card-interactive:hover {
+    border-color: rgba(232, 98, 42, 0.25) !important;
+    background-color: #1E1E1C;
+    transform: translateY(-1px);
+  }
+}
