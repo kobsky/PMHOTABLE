@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { getAuthenticatedClient, createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { Resend } from 'resend'
+import { headers } from 'next/headers'
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -64,8 +66,42 @@ export async function generateInviteToken(
     return { error: 'Nie udało się wygenerować linku zaproszenia' }
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  // Get base URL from environment or construct from headers
+  let baseUrl = process.env.NEXT_PUBLIC_APP_URL
+  if (!baseUrl) {
+    const headersList = await headers()
+    const host = headersList.get('host') || 'localhost:3000'
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    baseUrl = `${protocol}://${host}`
+  }
+
   const inviteLink = `${baseUrl}/invite/${data.token}`
+
+  // Send invitation email
+  if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    try {
+      await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+        to: parsed.data.email,
+        subject: 'Zaproszenie do Hotable Compass',
+        html: `
+          <h2>Witaj w Hotable Compass!</h2>
+          <p>Zostałeś zaproszony do zespołu Hotable Compass.</p>
+          <p>
+            <a href="${inviteLink}" style="background-color: #E8622A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+              Zaakceptuj zaproszenie
+            </a>
+          </p>
+          <p>Lub skopiuj ten link: ${inviteLink}</p>
+          <p>Link wygasa za 7 dni.</p>
+        `,
+      })
+    } catch (emailError) {
+      console.error('Failed to send invite email:', emailError)
+      // Don't fail the whole operation if email fails
+    }
+  }
 
   revalidatePath('/team/invite')
   return { inviteLink, email: parsed.data.email }

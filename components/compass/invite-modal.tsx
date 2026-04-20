@@ -87,7 +87,7 @@ export function InviteModal({ onClose }: InviteModalProps) {
             <div className="rounded-[3px] border border-compass-success/30 bg-compass-success/5 p-3 space-y-2">
               <p className="text-xs font-medium text-compass-text flex items-center gap-1.5">
                 <Check size={12} className="text-compass-success flex-shrink-0" />
-                Link dla <span className="text-compass-accent">{invitedEmail}</span>
+                Email wysłany do <span className="text-compass-accent">{invitedEmail}</span>
               </p>
               <div className="flex gap-2">
                 <code className="flex-1 bg-compass-surface-2 border border-compass-border rounded-[3px] px-2.5 py-1.5 text-2xs font-mono text-compass-text overflow-auto whitespace-nowrap">
