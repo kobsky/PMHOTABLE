@@ -687,7 +687,7 @@ Day 2:
 [⏳ Server] app/actions/tasks.ts + cycles.ts
 [⏳ UI] components/compass/* (new 3 + updates to 2)
 [⏳ Testing] Browser integration + mobile
-[⏳ Deploy] Vercel push on feature branch
+[⏳ Deploy] Netlify push on feature branch
 ```
 
 ---

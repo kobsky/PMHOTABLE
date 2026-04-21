@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/compass/page-header'
 import { GanttView } from '@/components/compass/gantt-view'
 
 export const metadata: Metadata = { title: 'Gantt — Oś czasu' }
+export const revalidate = 60
 
 export default async function GanttPage() {
   const [cycles, goals, tasks] = await Promise.all([getAllCycles(), getGoals(), getAllTasksWithRelations()])

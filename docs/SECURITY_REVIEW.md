@@ -116,7 +116,7 @@ If deployed to production with missing env vars, ALL server actions return mock 
 
 | Check | Status | Notes |
 |-------|--------|-------|
-| HTTPS in production | ✅ | Vercel enforces HTTPS |
+| HTTPS in production | ✅ | Netlify enforces HTTPS |
 | Supabase connection | ✅ | Supabase SDK uses HTTPS |
 | Local dev | 🟡 | HTTP localhost is acceptable for dev |
 

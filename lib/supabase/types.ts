@@ -94,8 +94,10 @@ export interface DbTask {
   ai_suggested: boolean
   deleted_at: string | null
   // migracja 012
-  size?: TaskSize | null
+  size?: TaskSize | null  // @deprecated — use story_points
   raci?: RaciMatrix | null
+  // migracja 016
+  story_points?: number | null
   created_at: string
   updated_at: string
 }

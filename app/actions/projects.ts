@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import type { DbProject, ScopeTag } from '@/lib/supabase/types'
 import { MOCK_PROJECTS } from '@/lib/mock-data'
 
@@ -28,21 +29,14 @@ export type CreateProjectInput = z.infer<typeof ProjectSchema>
 // QUERIES
 // ---------------------------------------------------------------------------
 
-export async function getProjects(): Promise<DbProject[]> {
+export const getProjects = cache(async (): Promise<DbProject[]> => {
   const auth = await getAuthenticatedClient()
-
   if (!auth) return MOCK_PROJECTS
-
   const { data, error } = await auth.supabase
-    .from('projects')
-    .select('*')
-    .eq('is_archived', false)
-    .order('name')
-
+    .from('projects').select('*').eq('is_archived', false).order('name')
   if (error) { console.error('getProjects:', error.message); return [] }
-
   return (data ?? []) as DbProject[]
-}
+})
 
 // ---------------------------------------------------------------------------
 // MUTATIONS

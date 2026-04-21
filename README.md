@@ -33,7 +33,7 @@ Combines daily task execution, strategic decision tracking, and grant compliance
 | Drag & Drop | @hello-pangea/dnd |
 | Backend / DB | Supabase (PostgreSQL + Auth + Realtime + RLS + Edge Functions) |
 | AI | Anthropic Claude API (assignee recommender) |
-| Deployment | Vercel Hobby |
+| Deployment | Netlify |
 
 ---
 

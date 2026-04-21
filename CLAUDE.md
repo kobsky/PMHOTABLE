@@ -33,7 +33,7 @@ To opiniotwórcze, minimalne, WIP-limited, async-first narzędzie dla małych te
 | AI | @anthropic-ai/sdk | latest | Claude API (assignee recommender) |
 | Markdown | react-markdown | latest | Summary rendering |
 | Toast | sonner | 1.7.1 | Notifications |
-| Deployment | Vercel Hobby | — | Free tier, HTTPS, Git auto-deploy |
+| Deployment | Netlify | — | Free tier, HTTPS, Git auto-deploy |
 
 ---
 

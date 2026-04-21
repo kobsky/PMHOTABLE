@@ -17,7 +17,7 @@
 | Drag & drop | @hello-pangea/dnd | 18.0.1 | Fork of react-beautiful-dnd, React 18+ compat |
 | Backend / DB | Supabase | 2.47.0 | PostgreSQL + Auth + Realtime + Edge Functions |
 | Supabase SSR | @supabase/ssr | 0.5.2 | Cookie-based server auth |
-| Deployment | Vercel Hobby | — | |
+| Deployment | Netlify | — | |
 | Linting | ESLint 9 | 9.x | next config |
 
 ---

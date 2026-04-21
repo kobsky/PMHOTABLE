@@ -16,7 +16,6 @@ import {
   History,
   Users,
   FlaskConical,
-  BarChart3,
   Settings2,
 } from 'lucide-react'
 
@@ -60,8 +59,7 @@ const navGroups: NavGroup[] = [
   {
     label: 'Przegląd',
     items: [
-      { href: '/gantt',    label: 'Gantt',    icon: GanttChart },
-      { href: '/capacity', label: 'Pojemność', icon: BarChart3 },
+      { href: '/gantt', label: 'Gantt', icon: GanttChart },
     ],
   },
   {

@@ -115,10 +115,15 @@ export function TaskCard({ task, compact = false, dragging = false, className, u
           {/* Spacer */}
           <span className="flex-1" />
 
-          {/* Size badge */}
-          {task.size && task.size !== 'M' && (
-            <span className="font-mono text-2xs text-compass-dim border border-compass-border px-1 rounded-[2px] leading-none py-px">
-              {task.size}
+          {/* Story Points badge */}
+          {task.story_points != null && (
+            <span className={cn(
+              'font-mono text-2xs border px-1 rounded-[2px] leading-none py-px',
+              task.story_points >= 8 ? 'text-compass-danger border-compass-danger/30' :
+              task.story_points >= 5 ? 'text-compass-warning border-compass-warning/30' :
+              'text-compass-dim border-compass-border'
+            )}>
+              {task.story_points}
             </span>
           )}
 
@@ -140,7 +145,8 @@ export function TaskCard({ task, compact = false, dragging = false, className, u
                     )}>{key}</span>
                     {ids.slice(0, 2).map(id => {
                       const p = profiles.find(p => p.id === id)
-                      const initial = (p?.full_name?.[0] ?? p?.email?.[0] ?? '?').toUpperCase()
+                      if (!p) return null
+                      const initial = (p.full_name?.[0] ?? p.email?.[0] ?? '·').toUpperCase()
                       return (
                         <span
                           key={id}
@@ -150,7 +156,7 @@ export function TaskCard({ task, compact = false, dragging = false, className, u
                               ? 'bg-compass-accent/20 border border-compass-accent/50 text-compass-accent'
                               : 'bg-compass-surface-3 border border-compass-border text-compass-muted'
                           )}
-                          title={p?.full_name ?? p?.email ?? id}
+                          title={p.full_name ?? p.email ?? ''}
                         >
                           {initial}
                         </span>

@@ -2,10 +2,14 @@
 
 import { useState, useMemo, useTransition } from 'react'
 import { cn, formatRelativeDate, getStatusLabel, scopeColor } from '@/lib/utils'
-import type { TaskWithRelations, DbProject, DbUser, DbCycle, TaskPriority, TaskStatus, TaskSize } from '@/lib/supabase/types'
+import type { TaskWithRelations, DbProject, DbUser, DbCycle, TaskPriority, TaskStatus } from '@/lib/supabase/types'
 import { updateTask, bulkUpdateTasks, getDeletedTasks, restoreTask } from '@/app/actions/tasks'
 import { bulkCategorizeTaskTypes } from '@/app/actions/ai'
-import { TaskDetailModal } from './task-detail-modal'
+import dynamic from 'next/dynamic'
+const TaskDetailModal = dynamic(
+  () => import('./task-detail-modal').then(m => m.TaskDetailModal),
+  { ssr: false }
+)
 import { toast } from 'sonner'
 import {
   Calendar, ChevronDown, Circle, Clock4, CheckCircle2, Ban,
@@ -69,8 +73,7 @@ export function BacklogView({ tasks, projects, profiles, cycles }: BacklogViewPr
           return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
         }
         if (sortBy === 'size') {
-          const sizeOrder: Record<string, number> = { XS: 0, S: 1, M: 2, L: 3, XL: 4, XXL: 5 }
-          return (sizeOrder[a.size ?? 'M'] ?? 2) - (sizeOrder[b.size ?? 'M'] ?? 2)
+          return (a.story_points ?? 3) - (b.story_points ?? 3)
         }
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       })
@@ -289,7 +292,7 @@ export function BacklogView({ tasks, projects, profiles, cycles }: BacklogViewPr
             onChange={(v) => setSortBy(v as typeof sortBy)}
             options={[
               { value: 'priority', label: 'Sortuj: Priorytet' },
-              { value: 'size',     label: 'Sortuj: Rozmiar' },
+              { value: 'size',     label: 'Sortuj: Story Points' },
               { value: 'due',      label: 'Sortuj: Termin' },
               { value: 'created',  label: 'Sortuj: Dodane' },
             ]}
@@ -636,9 +639,9 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
         <PriorityBadge priority={task.priority} />
       </div>
 
-      {/* Rozmiar */}
+      {/* Story Points */}
       <div className="flex items-center self-center">
-        <SizeBadge size={task.size ?? 'M'} />
+        <StoryPointsBadge points={task.story_points ?? 3} />
       </div>
 
       {/* Termin */}
@@ -668,18 +671,15 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
 // Small components
 // ---------------------------------------------------------------------------
 
-function SizeBadge({ size }: { size: TaskSize | string }) {
-  const sizeClass: Record<string, string> = {
-    XS: 'text-compass-dim/60',
-    S:  'text-compass-dim/80',
-    M:  'text-compass-muted',
-    L:  'text-compass-text',
-    XL: 'text-compass-warning',
-    XXL:'text-compass-danger',
-  }
+function StoryPointsBadge({ points }: { points: number }) {
+  const colorClass =
+    points >= 8 ? 'text-compass-danger' :
+    points >= 5 ? 'text-compass-warning' :
+    points >= 3 ? 'text-compass-muted' :
+    'text-compass-dim'
   return (
-    <span className={cn('font-mono text-2xs', sizeClass[size] ?? 'text-compass-muted')}>
-      {size}
+    <span className={cn('font-mono text-2xs font-semibold', colorClass)}>
+      {points}
     </span>
   )
 }

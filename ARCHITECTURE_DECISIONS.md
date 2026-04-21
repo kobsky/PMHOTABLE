@@ -13,7 +13,7 @@
 - Server Components eliminate client-side data fetching boilerplate — page data is fetched directly in `page.tsx` and passed to client components as props
 - Server Actions (`'use server'`) replace REST API routes for mutations, keeping all DB logic in the same file hierarchy
 - App Router's nested layouts provide the auth-guard pattern for the dashboard without middleware complexity
-- Edge-ready by default (Vercel deployment, Supabase edge functions match)
+- Edge-ready by default (Netlify deployment, Supabase edge functions match)
 
 **Trade-offs:**
 - Learning curve for `async` Server Components and the client/server boundary
@@ -123,19 +123,19 @@
 - All AI calls are server-side only (Server Actions) — the API key is never exposed to the client
 - `ai_feedback` table tracks acceptance rates, allowing future prompt improvement
 
-**Alternatives considered:** OpenAI GPT-4o-mini (similar cost, less tuned for structured JSON output), local model via Ollama (no latency, but no server setup in Vercel Hobby).
+**Alternatives considered:** OpenAI GPT-4o-mini (similar cost, less tuned for structured JSON output), local model via Ollama (no latency, but no server setup in Netlify).
 
 ---
 
-## ADR-008: Vercel Hobby Tier for Deployment
+## ADR-008: Netlify for Deployment
 
-**Decision:** Deploy on Vercel Hobby (free tier) with automatic Git deployments.
+**Decision:** Deploy on Netlify (free tier) with automatic Git deployments. Production URL: https://pmhotable.netlify.app/
 
 **Rationale:**
 - Zero-config deployment for Next.js — push to main, it deploys
 - HTTPS is automatic — required for Supabase auth cookies
-- Edge network means fast response times in Poland (closest edge in Frankfurt)
-- Hobby tier is sufficient for a 3-person internal tool — limits (100 GB bandwidth, 100 deployments/day) are not a concern
+- Edge network means fast response times in Poland
+- Free tier is sufficient for a 3-person internal tool
 
 **Trade-offs:**
 - No persistent server — Server Actions run as serverless functions (cold start ~200ms, acceptable)

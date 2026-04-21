@@ -188,17 +188,20 @@ export function NewSprintModal({ trigger, suggestedName }: NewSprintModalProps) 
 
               {/* Velocity planned */}
               <div className="flex flex-col gap-1.5">
-                <label className="compass-label">Velocity planowane (story points)</label>
+                <label className="compass-label">PLANOWANA POJEMNOŚĆ (STORY POINTS)</label>
                 <input
                   type="number"
-                  min={1}
-                  max={100}
+                  min={20}
+                  max={50}
                   className="compass-input font-mono"
-                  placeholder="np. 8"
+                  placeholder="np. 36 (3 osoby × 12 pkt)"
                   value={form.velocity_planned}
                   onChange={(e) => setForm((f) => ({ ...f, velocity_planned: e.target.value }))}
                   disabled={isPending}
                 />
+                {form.velocity_planned && (Number(form.velocity_planned) < 20 || Number(form.velocity_planned) > 50) && (
+                  <p className="text-xs text-compass-warning">Pojemność musi wynosić 20–50 story points</p>
+                )}
               </div>
 
               {/* Error */}

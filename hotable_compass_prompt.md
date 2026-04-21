@@ -11,7 +11,7 @@ Compass to **nie kolejny ClickUp**. To minimalny, opiniowany system operacyjny f
 2. Decyzje strategiczne (OKR, roadmapa, decision log)
 3. Compliance grantowy (milestony PARP FEPW.01.01, tracking budżetu i wskaźników)
 
-**Stack technologiczny:** Next.js 15 (App Router) + TypeScript + Tailwind CSS + Supabase (PostgreSQL + Realtime + Auth + RLS) + Vercel.
+**Stack technologiczny:** Next.js 15 (App Router) + TypeScript + Tailwind CSS + Supabase (PostgreSQL + Realtime + Auth + RLS) + Netlify.
 
 **Użytkownicy:** trzy osoby z równymi uprawnieniami:
 - **Przemysław Kobylas (CEO/PM/Backend Dev)**
@@ -178,7 +178,7 @@ Domyślnie wyłączone notyfikacje dla: nowych zadań w backlogu, komentarzy w u
 - **Realtime:** Supabase Realtime dla Sprint Board (live updates kart)
 - **Auth:** Supabase Auth, email/password + magic link, 3 konta = 3 users
 - **Edge Functions:** Deno, używane do: weekly summary generation, daily check-in reminders, deadline alerts, ICE score computation
-- **Deployment:** Vercel (Hobby tier wystarczy dla 3 użytkowników)
+- **Deployment:** Netlify (https://pmhotable.netlify.app/)
 
 ### RLS Policy (przykładowe zasady)
 - Każdy user widzi wszystkie dane w workspace (brak private tasks)

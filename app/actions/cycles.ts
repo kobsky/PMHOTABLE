@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { cache } from 'react'
 import type { DbCycle, SprintLink, SprintLinkLabel, UnavailabilityEntry } from '@/lib/supabase/types'
 import { MOCK_CYCLE, MOCK_CYCLES } from '@/lib/mock-data'
 
@@ -16,7 +17,7 @@ const CycleBaseSchema = z.object({
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Nieprawidłowy format daty'),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Nieprawidłowy format daty'),
   goal: z.string().max(500).optional().nullable(),
-  velocity_planned: z.coerce.number().int().positive().optional().nullable(),
+  velocity_planned: z.coerce.number().int().min(20, 'Pojemność musi wynosić min. 20 pkt').max(50, 'Pojemność nie może przekraczać 50 pkt').optional().nullable(),
 })
 
 // Full create schema with cross-field date validation
@@ -37,36 +38,23 @@ export type CreateCycleInput = z.infer<typeof CycleSchema>
 // QUERIES
 // ---------------------------------------------------------------------------
 
-export async function getActiveCycle(): Promise<DbCycle | null> {
+export const getActiveCycle = cache(async (): Promise<DbCycle | null> => {
   const auth = await getAuthenticatedClient()
-
   if (!auth) return MOCK_CYCLE
-
   const { data, error } = await auth.supabase
-    .from('cycles')
-    .select('*')
-    .eq('is_active', true)
-    .maybeSingle()
-
+    .from('cycles').select('*').eq('is_active', true).maybeSingle()
   if (error) { console.error('getActiveCycle:', error.message); return null }
-
   return data as DbCycle | null
-}
+})
 
-export async function getAllCycles(): Promise<DbCycle[]> {
+export const getAllCycles = cache(async (): Promise<DbCycle[]> => {
   const auth = await getAuthenticatedClient()
-
   if (!auth) return MOCK_CYCLES
-
   const { data, error } = await auth.supabase
-    .from('cycles')
-    .select('*')
-    .order('start_date', { ascending: false })
-
+    .from('cycles').select('*').order('start_date', { ascending: false })
   if (error) { console.error('getAllCycles:', error.message); return [] }
-
   return (data ?? []) as DbCycle[]
-}
+})
 
 export async function getCycleById(id: string): Promise<DbCycle | null> {
   const auth = await getAuthenticatedClient()

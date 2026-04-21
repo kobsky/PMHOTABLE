@@ -6,7 +6,7 @@ import type { NextConfig } from 'next'
 const securityHeaders = [
   // Prevent DNS prefetch for privacy
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
-  // Force HTTPS for 2 years (Vercel enforces this anyway)
+  // Force HTTPS for 2 years (Netlify enforces this anyway)
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
   // Prevent clickjacking
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
@@ -37,6 +37,9 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@hello-pangea/dnd'],
+  },
   images: {
     remotePatterns: [
       {

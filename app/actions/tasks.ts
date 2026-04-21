@@ -4,6 +4,11 @@ import { z } from 'zod'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { TaskStatus, TaskPriority, TaskType, TaskWithRelations, DbProject, TaskSize, RaciMatrix } from '@/lib/supabase/types'
+
+const StoryPointsSchema = z.number().int().refine(
+  (val) => [1, 2, 3, 5, 8, 13].includes(val),
+  { message: 'Nieprawidłowa wartość story points (dozwolone: 1, 2, 3, 5, 8, 13)' }
+)
 import { MOCK_TASKS, MOCK_PROJECTS, enrichTask } from '@/lib/mock-data'
 
 // ---------------------------------------------------------------------------
@@ -232,6 +237,7 @@ export async function updateTask(
     cycle_id?: string | null
     size?: TaskSize | null
     raci?: RaciMatrix | null
+    story_points?: number | null
   }
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
@@ -314,6 +320,56 @@ export async function updateTaskSize(
   revalidatePath('/board')
   revalidatePath('/backlog')
   return { error: null }
+}
+
+export async function updateTaskStoryPoints(
+  taskId: string,
+  points: number
+): Promise<{ error: string | null; warning?: string }> {
+  const parsed = StoryPointsSchema.safeParse(points)
+  if (!parsed.success) return { error: parsed.error.issues[0].message }
+
+  // 13 (XXL) is blocked from UI — reject it server-side too
+  if (points === 13) return { error: 'Zadań z 13 punktami nie można przypisywać do sprintów' }
+
+  const auth = await getAuthenticatedClient()
+  if (!auth) return { error: null }
+
+  // Capacity warning: check current assignee load in the task's cycle
+  const { data: task } = await auth.supabase
+    .from('tasks')
+    .select('assignee_id, cycle_id')
+    .eq('id', taskId)
+    .single()
+
+  let warning: string | undefined
+  if (task?.assignee_id && task?.cycle_id) {
+    const { data: sibling } = await auth.supabase
+      .from('tasks')
+      .select('story_points')
+      .eq('assignee_id', task.assignee_id)
+      .eq('cycle_id', task.cycle_id)
+      .neq('id', taskId)
+      .is('deleted_at', null)
+
+    const siblingSum = (sibling ?? []).reduce((s, t) => s + (t.story_points ?? 3), 0)
+    if (siblingSum + points > 12) {
+      warning = `Osoba ma już ${siblingSum} pkt — łącznie przekroczy 12 pkt`
+    }
+  }
+
+  const { error } = await auth.supabase
+    .from('tasks')
+    .update({ story_points: points })
+    .eq('id', taskId)
+    .is('deleted_at', null)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/board')
+  revalidatePath('/backlog')
+  revalidatePath('/capacity')
+  return { error: null, warning }
 }
 
 export async function updateTaskRaci(

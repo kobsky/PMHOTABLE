@@ -4,11 +4,12 @@ import { useState, useTransition, useRef, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { toast } from 'sonner'
 import { cn, formatDate, scopeColor, inferTaskType, getTaskTypeLabel, getTaskTypeIcon } from '@/lib/utils'
-import { updateTask, deleteTask, createSubtask, updateSubtaskStatus, removeSubtask, moveTaskToCycle } from '@/app/actions/tasks'
+import { updateTask, deleteTask, createSubtask, updateSubtaskStatus, removeSubtask, moveTaskToCycle, updateTaskStoryPoints } from '@/app/actions/tasks'
 import { logAIFeedback, getAssigneeRecommendation } from '@/app/actions/ai'
 import type { AssigneeSuggestion } from '@/app/actions/ai'
 import { AssigneeSuggestions } from '@/components/compass/assignee-suggestions'
-import type { TaskWithRelations, DbTask, DbProject, DbUser, DbCycle, TaskStatus, TaskPriority, TaskType, TaskSize, RaciMatrix } from '@/lib/supabase/types'
+import type { TaskWithRelations, DbTask, DbProject, DbUser, DbCycle, TaskStatus, TaskPriority, TaskType, RaciMatrix } from '@/lib/supabase/types'
+import { STORY_POINTS_VALUES, STORY_POINTS_LIMIT } from '@/lib/capacity'
 import {
   X, Trash2, ExternalLink, Plus, Link2, Calendar,
   Circle, Clock4, CheckCircle2, Ban, Loader2, ChevronDown,
@@ -126,8 +127,9 @@ export function TaskDetailModal({
   const [localSubtasks, setLocalSubtasks] = useState<DbTask[]>(task.subtasks ?? [])
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('')
 
-  // T-Shirt sizing
-  const [size, setSize] = useState<TaskSize>(task.size ?? 'M')
+  // Story Points
+  const [storyPoints, setStoryPoints] = useState<number>(task.story_points ?? 3)
+  const [capacityWarning, setCapacityWarning] = useState<string | null>(null)
 
   // RACI
   const [raci, setRaci] = useState<RaciMatrix>(
@@ -162,6 +164,8 @@ export function TaskDetailModal({
     setAssigneeSuggestions([])
     setAssigneeSuggestionsDismissed(false)
     setRaci(task.raci ?? { responsible: null, accountable: [], consulted: [], informed: [] })
+    setStoryPoints(task.story_points ?? 3)
+    setCapacityWarning(null)
   }, [task.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch assignee suggestions from Claude when modal opens
@@ -238,7 +242,7 @@ export function TaskDetailModal({
         assignee_id: assigneeId,
         due_date: dueDate || null,
         cycle_id: cycleId,
-        size,
+        story_points: storyPoints,
         raci: (raci.responsible || raci.accountable.length || raci.consulted.length || raci.informed.length)
           ? raci
           : null,
@@ -543,22 +547,44 @@ export function TaskDetailModal({
               ]}
             />
 
-            {/* Size */}
-            <SelectPill
-              value={size}
-              onChange={(v) => setSize(v as TaskSize)}
-              label={size}
-              colorClass="text-compass-muted font-mono"
-              options={[
-                { value: 'XS',  label: 'XS' },
-                { value: 'S',   label: 'S' },
-                { value: 'M',   label: 'M' },
-                { value: 'L',   label: 'L' },
-                { value: 'XL',  label: 'XL' },
-                { value: 'XXL', label: 'XXL' },
-              ]}
-            />
+            {/* Story Points */}
+            <div className="flex items-center gap-1">
+              {STORY_POINTS_VALUES.map((pts) => (
+                <button
+                  key={pts}
+                  type="button"
+                  onClick={async () => {
+                    setStoryPoints(pts)
+                    if (task.id && !task.id.startsWith('temp-')) {
+                      const { warning } = await updateTaskStoryPoints(task.id, pts)
+                      setCapacityWarning(warning ?? null)
+                    }
+                  }}
+                  className={cn(
+                    'w-7 h-6 rounded-[3px] font-mono text-xs border transition-colors',
+                    storyPoints === pts
+                      ? 'bg-compass-accent/20 border-compass-accent text-compass-accent font-semibold'
+                      : 'bg-compass-surface border-compass-border text-compass-dim hover:text-compass-muted hover:border-compass-border-strong'
+                  )}
+                >
+                  {pts}
+                </button>
+              ))}
+              {storyPoints > STORY_POINTS_LIMIT && (
+                <span className="font-mono text-2xs text-compass-warning ml-1">⚠ &gt;{STORY_POINTS_LIMIT}</span>
+              )}
+            </div>
           </div>
+
+          {/* Capacity warning */}
+          {capacityWarning && (
+            <div className="flex items-center gap-2 px-6 py-2 bg-compass-warning/10 border-b border-compass-warning/30">
+              <span className="text-xs text-compass-warning">{capacityWarning}</span>
+              <button type="button" onClick={() => setCapacityWarning(null)} className="ml-auto text-compass-warning/60 hover:text-compass-warning">
+                <X size={11} />
+              </button>
+            </div>
+          )}
 
           {/* Body */}
           <div className="px-6 py-4 space-y-5">
@@ -999,7 +1025,7 @@ function RaciSingleField({ label, selected, profiles, onChange }: {
                   : 'bg-compass-surface border-compass-border text-compass-dim hover:text-compass-muted hover:border-compass-border-strong'
               )}
             >
-              {(p.full_name ?? p.email ?? '?').split(' ')[0]}
+              {(p.full_name ?? p.email ?? 'Brak').split(' ')[0]}
             </button>
           )
         })}
@@ -1038,7 +1064,7 @@ function RaciMultiField({ label, selected, profiles, onChange }: RaciMultiFieldP
                   : 'bg-compass-surface border-compass-border text-compass-dim hover:text-compass-muted hover:border-compass-border-strong'
               )}
             >
-              {(p.full_name ?? p.email ?? '?').split(' ')[0]}
+              {(p.full_name ?? p.email ?? 'Brak').split(' ')[0]}
             </button>
           )
         })}

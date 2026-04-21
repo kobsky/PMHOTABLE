@@ -168,7 +168,7 @@ Client components (`sprint-board.tsx`, `decisions-view.tsx`, etc.) have no error
 ### ISSUE-03: Console.error Only for Dev Errors
 **Impact: LOW** (dev stage OK, prod problem)
 
-Server actions log errors with `console.error()`. In production (Vercel), these appear in function logs but there's no structured logging or error aggregation service (Sentry, etc.).
+Server actions log errors with `console.error()`. In production (Netlify), these appear in function logs but there's no structured logging or error aggregation service (Sentry, etc.).
 
 **Fix (future):** Add Sentry or Axiom for production error tracking.
 **Effort:** 2 hours

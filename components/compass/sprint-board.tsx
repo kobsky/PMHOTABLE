@@ -11,7 +11,11 @@ import {
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { TaskCard } from './task-card'
-import { TaskDetailModal } from './task-detail-modal'
+import dynamic from 'next/dynamic'
+const TaskDetailModal = dynamic(
+  () => import('./task-detail-modal').then(m => m.TaskDetailModal),
+  { ssr: false }
+)
 import { WipWarning } from './wip-warning'
 import { QuickAddTask } from './quick-add-task'
 import { updateTaskStatus, reorderColumn } from '@/app/actions/tasks'
