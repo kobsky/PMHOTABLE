@@ -20,24 +20,27 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
   )
 
   const teamData = profiles.map((profile) => {
-    const allUserTasks = allTasks.filter((t) => t.assignee_id === profile.id)
-    const inProgress = allUserTasks.filter((t) => t.status === 'in_progress').length
-    const todo = allUserTasks.filter((t) => t.status === 'todo').length
-    const done = allUserTasks.filter((t) => t.status === 'done').length
+    const scopedTasks = activeCycle
+      ? cycleTasks.filter((t) => t.assignee_id === profile.id)
+      : allTasks.filter((t) => t.assignee_id === profile.id)
+
+    const inProgress = scopedTasks.filter((t) => t.status === 'in_progress').length
+    const todo = scopedTasks.filter((t) => t.status === 'todo').length
+    const done = scopedTasks.filter((t) => t.status === 'done').length
     const initial = (profile.full_name?.[0] ?? profile.email?.[0] ?? '?').toUpperCase()
 
     let capacityUsed = 0
     let loadStatus: 'ok' | 'warning' | 'danger' = 'ok'
 
     if (activeCycle) {
-      const cycleUserTasks = cycleTasks.filter(
-        (t) => t.assignee_id === profile.id && t.status !== 'done' && t.status !== 'cancelled'
+      const cycleUserTasks = scopedTasks.filter(
+        (t) => t.status !== 'done' && t.status !== 'cancelled'
       )
       capacityUsed = calculateUsedCapacity(cycleUserTasks)
       loadStatus = getLoadStatus(capacityUsed)
     }
 
-    return { profile, inProgress, todo, done, allUserTasks, capacityUsed, loadStatus, initial }
+    return { profile, inProgress, todo, done, scopedTasks, capacityUsed, loadStatus, initial }
   })
 
   const teamCapacityTotal = profiles.length * STORY_POINTS_LIMIT
@@ -77,7 +80,7 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
 
       {/* Unified member rows */}
       <div className="space-y-3">
-        {teamData.map(({ profile, inProgress, todo, done, allUserTasks, capacityUsed, loadStatus, initial }) => (
+        {teamData.map(({ profile, inProgress, todo, done, scopedTasks, capacityUsed, loadStatus, initial }) => (
           <div key={profile.id} className="compass-card p-4">
             <div className="flex items-start gap-3">
               {/* Avatar */}
@@ -139,7 +142,7 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
                   <div className="mt-2 h-1 bg-compass-surface-2 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-compass-accent to-compass-success rounded-full"
-                      style={{ width: allUserTasks.length > 0 ? `${(done / allUserTasks.length) * 100}%` : '0%' }}
+                      style={{ width: scopedTasks.length > 0 ? `${(done / scopedTasks.length) * 100}%` : '0%' }}
                     />
                   </div>
                 )}
