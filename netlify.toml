@@ -2,5 +2,10 @@
   command = "pnpm build"
   publish = ".next"
 
+[build.environment]
+  # NEXT_PUBLIC_* vars are intentionally inlined into Edge Function output by Next.js.
+  # They are not secrets — anon key is safe to expose client-side per Supabase design.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_URL"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
