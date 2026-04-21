@@ -15,14 +15,14 @@ export const metadata: Metadata = { title: 'Backlog' }
 // Async sub-component: fetches tasks and renders list (streamed in Suspense)
 // ---------------------------------------------------------------------------
 
-async function BacklogContent() {
+async function BacklogContent({ initialCycleId }: { initialCycleId?: string }) {
   const [tasks, projects, cycles, profiles] = await Promise.all([
     getAllTasksWithRelations(),
     getProjects(),
     getAllCycles(),
     getProfiles(),
   ])
-  return <BacklogView tasks={tasks} projects={projects} profiles={profiles} cycles={cycles} />
+  return <BacklogView tasks={tasks} projects={projects} profiles={profiles} cycles={cycles} initialCycleId={initialCycleId} />
 }
 
 function BacklogContentSkeleton() {
@@ -63,7 +63,7 @@ export default async function BacklogPage() {
       {/* Task list streams in */}
       <div className="flex-1 overflow-auto">
         <Suspense fallback={<BacklogContentSkeleton />}>
-          <BacklogContent />
+          <BacklogContent initialCycleId={cycle?.id} />
         </Suspense>
       </div>
 

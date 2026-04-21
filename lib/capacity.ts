@@ -8,7 +8,7 @@ export const STORY_POINTS_LIMIT = 12   // per-person warning threshold
 export const STORY_POINTS_DANGER = 15  // per-person danger threshold
 
 export function calculateUsedCapacity(tasks: TaskWithRelations[]): number {
-  return tasks.reduce((sum, task) => sum + (task.story_points ?? 3), 0)
+  return tasks.reduce((sum, task) => sum + (task.story_points ?? 0), 0)
 }
 
 export function calculateEffectiveCapacity(profile: DbUser, cycle: DbCycle): number {

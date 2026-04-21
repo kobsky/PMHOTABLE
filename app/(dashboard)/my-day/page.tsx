@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getDayOfWeek, getGreeting, formatDate } from '@/lib/utils'
 import { getMyTasks, getProjects } from '@/app/actions/tasks'
+import { getActiveCycle } from '@/app/actions/cycles'
 import { getProfiles } from '@/app/actions/users'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { TaskCard } from '@/components/compass/task-card'
@@ -10,12 +11,14 @@ import { Sun, Circle, Clock4, CheckCircle2, TrendingUp } from 'lucide-react'
 export const metadata: Metadata = { title: 'Moje Zadania' }
 
 export default async function MyDayPage() {
-  const [tasks, projects, profiles, auth] = await Promise.all([
-    getMyTasks(),
+  const [activeCycle, projects, profiles, auth] = await Promise.all([
+    getActiveCycle(),
     getProjects(),
     getProfiles(),
     getAuthenticatedClient(),
   ])
+
+  const tasks = await getMyTasks(activeCycle?.id)
 
   let userName = 'Ty'
   let currentUserId: string | null = null
@@ -108,7 +111,11 @@ export default async function MyDayPage() {
 
       {/* Do zrobienia */}
       {todo.length > 0 && (
-        <Section label="Na dziś">
+        <Section label={
+          activeCycle
+            ? `Zadania ${activeCycle.name} · do ${formatDate(new Date(activeCycle.end_date))}`
+            : 'Do zrobienia'
+        }>
           {todo.map((task) => (
             <TaskCard key={task.id} task={task} profiles={profiles} />
           ))}
@@ -117,7 +124,7 @@ export default async function MyDayPage() {
 
       {/* Ukończone */}
       {done.length > 0 && (
-        <Section label="Ukończone dziś">
+        <Section label="Ukończone">
           {done.map((task) => (
             <TaskCard key={task.id} task={task} profiles={profiles} />
           ))}
@@ -139,7 +146,7 @@ export default async function MyDayPage() {
   )
 }
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+function Section({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="mb-6">
       <p className="compass-label mb-2 px-1">{label}</p>

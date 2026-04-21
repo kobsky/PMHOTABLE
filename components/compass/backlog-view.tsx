@@ -21,6 +21,7 @@ interface BacklogViewProps {
   projects: DbProject[]
   profiles: DbUser[]
   cycles: DbCycle[]
+  initialCycleId?: string
 }
 
 type FilterStatus = 'all' | TaskStatus
@@ -29,13 +30,13 @@ type FilterProject = 'all' | string
 type FilterAssignee = 'all' | 'unassigned' | string
 type FilterCycle = 'all' | 'unscheduled' | string
 
-export function BacklogView({ tasks, projects, profiles, cycles }: BacklogViewProps) {
+export function BacklogView({ tasks, projects, profiles, cycles, initialCycleId }: BacklogViewProps) {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [filterPriority, setFilterPriority] = useState<FilterPriority>('all')
   const [filterProject, setFilterProject] = useState<FilterProject>('all')
   const [filterAssignee, setFilterAssignee] = useState<FilterAssignee>('all')
-  const [filterCycle, setFilterCycle] = useState<FilterCycle>('all')
+  const [filterCycle, setFilterCycle] = useState<FilterCycle>(initialCycleId ?? 'all')
   const [sortBy, setSortBy] = useState<'priority' | 'created' | 'due' | 'size'>('priority')
   const [selectedTask, setSelectedTask] = useState<TaskWithRelations | null>(null)
   const [localTasks, setLocalTasks] = useState<TaskWithRelations[]>(tasks)

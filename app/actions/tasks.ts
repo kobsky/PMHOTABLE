@@ -48,7 +48,7 @@ const TASK_SELECT = `
 // QUERIES — fallback na mock gdy brak auth lub brak kluczy
 // ---------------------------------------------------------------------------
 
-export async function getMyTasks(): Promise<TaskWithRelations[]> {
+export async function getMyTasks(activeCycleId?: string): Promise<TaskWithRelations[]> {
   const auth = await getAuthenticatedClient()
 
   if (!auth) {
@@ -59,21 +59,23 @@ export async function getMyTasks(): Promise<TaskWithRelations[]> {
 
   const { supabase, userId } = auth
 
+  const baseAssigned = supabase
+    .from('tasks')
+    .select(TASK_SELECT)
+    .eq('assignee_id', userId)
+    .neq('status', 'cancelled')
+    .is('deleted_at', null)
+
+  const baseResponsible = supabase
+    .from('tasks')
+    .select(TASK_SELECT)
+    .filter('raci->>responsible', 'eq', userId)
+    .neq('status', 'cancelled')
+    .is('deleted_at', null)
+
   const [assignedRes, responsibleRes] = await Promise.all([
-    supabase
-      .from('tasks')
-      .select(TASK_SELECT)
-      .eq('assignee_id', userId)
-      .neq('status', 'cancelled')
-      .is('deleted_at', null)
-      .order('position'),
-    supabase
-      .from('tasks')
-      .select(TASK_SELECT)
-      .filter('raci->>responsible', 'eq', userId)
-      .neq('status', 'cancelled')
-      .is('deleted_at', null)
-      .order('position'),
+    (activeCycleId ? baseAssigned.eq('cycle_id', activeCycleId) : baseAssigned).order('position'),
+    (activeCycleId ? baseResponsible.eq('cycle_id', activeCycleId) : baseResponsible).order('position'),
   ])
 
   if (assignedRes.error) console.error('getMyTasks assigned:', assignedRes.error.message)
