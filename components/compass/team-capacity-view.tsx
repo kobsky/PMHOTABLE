@@ -1,8 +1,12 @@
 import { cn } from '@/lib/utils'
 import { calculateUsedCapacity, getLoadStatus, STORY_POINTS_LIMIT } from '@/lib/capacity'
 import { SprintCapacityBar } from '@/components/compass/sprint-capacity-bar'
-import type { DbCycle, DbUser, TaskWithRelations } from '@/lib/supabase/types'
+import type { DbCycle, DbUser, TaskWithRelations, RaciMatrix } from '@/lib/supabase/types'
 import { Clock4, CheckCircle2, Circle, BarChart3 } from 'lucide-react'
+
+function effectiveOwner(task: TaskWithRelations): string | null {
+  return task.assignee_id ?? (task.raci as RaciMatrix | null)?.responsible ?? null
+}
 
 interface TeamCapacityViewProps {
   profiles: DbUser[]
@@ -16,13 +20,13 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
     : []
 
   const unassignedTasks = cycleTasks.filter(
-    (t) => !t.assignee_id && t.status !== 'done' && t.status !== 'cancelled'
+    (t) => !effectiveOwner(t) && t.status !== 'done' && t.status !== 'cancelled'
   )
 
   const teamData = profiles.map((profile) => {
     const scopedTasks = activeCycle
-      ? cycleTasks.filter((t) => t.assignee_id === profile.id)
-      : allTasks.filter((t) => t.assignee_id === profile.id)
+      ? cycleTasks.filter((t) => effectiveOwner(t) === profile.id)
+      : allTasks.filter((t) => effectiveOwner(t) === profile.id)
 
     const inProgress = scopedTasks.filter((t) => t.status === 'in_progress').length
     const todo = scopedTasks.filter((t) => t.status === 'todo').length
