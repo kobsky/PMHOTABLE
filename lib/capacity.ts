@@ -1,11 +1,12 @@
 import type { DbUser, DbCycle } from '@/lib/supabase/types'
 import type { TaskWithRelations } from '@/lib/supabase/types'
+import { getZone, type VelocityZone } from '@/lib/velocity/tolerance'
 
 export const STORY_POINTS_VALUES = [1, 2, 3, 5, 8] as const
 export type StoryPointsValue = typeof STORY_POINTS_VALUES[number]
 
-export const STORY_POINTS_LIMIT = 12   // per-person warning threshold
-export const STORY_POINTS_DANGER = 15  // per-person danger threshold
+export const STORY_POINTS_LIMIT = 12   // per-person fallback target when no base_capacity set
+export const STORY_POINTS_DANGER = 15  // kept for SprintCapacityBar legacy fallback
 
 export function calculateUsedCapacity(tasks: TaskWithRelations[]): number {
   return tasks.reduce((sum, task) => sum + (task.story_points ?? 0), 0)
@@ -25,8 +26,15 @@ export function calculateEffectiveCapacity(profile: DbUser, cycle: DbCycle): num
   return base * (availableDays / cycleDays)
 }
 
-export function getLoadStatus(used: number, _capacity?: number): 'ok' | 'warning' | 'danger' {
-  if (used > STORY_POINTS_DANGER) return 'danger'
-  if (used > STORY_POINTS_LIMIT) return 'warning'
-  return 'ok'
+export function getLoadStatus(
+  used: number,
+  target?: number,
+  tolerancePercent?: number
+): 'ok' | 'warning' | 'danger' {
+  const t = target ?? STORY_POINTS_LIMIT
+  const tol = tolerancePercent ?? 20
+  const zone: VelocityZone = getZone(used, t, tol)
+  if (zone === 'green') return 'ok'
+  if (zone === 'yellow') return 'warning'
+  return 'danger'
 }

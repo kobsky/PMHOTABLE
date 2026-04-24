@@ -61,6 +61,7 @@ export const MOCK_CYCLE: DbCycle = {
   notes: null,
   sprint_links: null,
   unavailability: null,
+  tolerance_percent: 20,
   created_at: '2026-04-01T00:00:00Z',
 }
 
@@ -77,6 +78,7 @@ export const MOCK_CYCLES: DbCycle[] = [
     notes: null,
     sprint_links: null,
     unavailability: null,
+    tolerance_percent: 20,
     created_at: '2026-01-01T00:00:00Z',
   },
   {
@@ -91,6 +93,7 @@ export const MOCK_CYCLES: DbCycle[] = [
     notes: null,
     sprint_links: null,
     unavailability: null,
+    tolerance_percent: 20,
     created_at: '2026-01-30T00:00:00Z',
   },
   {
@@ -105,6 +108,7 @@ export const MOCK_CYCLES: DbCycle[] = [
     notes: null,
     sprint_links: null,
     unavailability: null,
+    tolerance_percent: 20,
     created_at: '2026-02-27T00:00:00Z',
   },
   {
@@ -119,6 +123,7 @@ export const MOCK_CYCLES: DbCycle[] = [
     notes: null,
     sprint_links: null,
     unavailability: null,
+    tolerance_percent: 20,
     created_at: '2026-04-01T00:00:00Z',
   },
   {
@@ -133,6 +138,7 @@ export const MOCK_CYCLES: DbCycle[] = [
     notes: null,
     sprint_links: null,
     unavailability: null,
+    tolerance_percent: 20,
     created_at: '2026-04-25T00:00:00Z',
   },
   {
@@ -147,6 +153,7 @@ export const MOCK_CYCLES: DbCycle[] = [
     notes: null,
     sprint_links: null,
     unavailability: null,
+    tolerance_percent: 20,
     created_at: '2026-05-28T00:00:00Z',
   },
 ]

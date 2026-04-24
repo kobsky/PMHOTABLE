@@ -1,9 +1,11 @@
 import { cn } from '@/lib/utils'
-import { STORY_POINTS_LIMIT, STORY_POINTS_DANGER } from '@/lib/capacity'
+import { STORY_POINTS_LIMIT } from '@/lib/capacity'
+import type { VelocityZone } from '@/lib/velocity/tolerance'
 
 interface SprintCapacityBarProps {
   used: number
   limit?: number
+  zone?: VelocityZone
   showLabel?: boolean
   className?: string
 }
@@ -11,23 +13,26 @@ interface SprintCapacityBarProps {
 export function SprintCapacityBar({
   used,
   limit = STORY_POINTS_LIMIT,
+  zone,
   showLabel = true,
   className,
 }: SprintCapacityBarProps) {
   const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0
   const overflow = used > limit
 
+  const resolvedZone: VelocityZone = zone ?? (used > limit * 1.25 ? 'red' : used > limit ? 'yellow' : 'green')
+
   const color =
-    used > STORY_POINTS_DANGER
+    resolvedZone === 'red'
       ? 'bg-compass-danger'
-      : used > STORY_POINTS_LIMIT
+      : resolvedZone === 'yellow'
         ? 'bg-compass-warning'
         : 'bg-compass-success'
 
   const textColor =
-    used > STORY_POINTS_DANGER
+    resolvedZone === 'red'
       ? 'text-compass-danger'
-      : used > STORY_POINTS_LIMIT
+      : resolvedZone === 'yellow'
         ? 'text-compass-warning'
         : 'text-compass-success'
 

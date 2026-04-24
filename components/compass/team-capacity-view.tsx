@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
-import { calculateUsedCapacity, getLoadStatus, STORY_POINTS_LIMIT } from '@/lib/capacity'
+import { calculateUsedCapacity, STORY_POINTS_LIMIT } from '@/lib/capacity'
+import { getZone } from '@/lib/velocity/tolerance'
 import { SprintCapacityBar } from '@/components/compass/sprint-capacity-bar'
 import type { DbCycle, DbUser, TaskWithRelations, RaciMatrix } from '@/lib/supabase/types'
 import { Clock4, CheckCircle2, Circle, BarChart3 } from 'lucide-react'
@@ -23,6 +24,8 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
     (t) => !effectiveOwner(t) && t.status !== 'done' && t.status !== 'cancelled'
   )
 
+  const tolerancePercent = activeCycle?.tolerance_percent ?? 20
+
   const teamData = profiles.map((profile) => {
     const scopedTasks = activeCycle
       ? cycleTasks.filter((t) => effectiveOwner(t) === profile.id)
@@ -33,21 +36,22 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
     const done = scopedTasks.filter((t) => t.status === 'done').length
     const initial = (profile.full_name?.[0] ?? profile.email?.[0] ?? '?').toUpperCase()
 
+    const target = profile.base_capacity ?? STORY_POINTS_LIMIT
     let capacityUsed = 0
-    let loadStatus: 'ok' | 'warning' | 'danger' = 'ok'
+    let zone: 'green' | 'yellow' | 'red' = 'green'
 
     if (activeCycle) {
       const cycleUserTasks = scopedTasks.filter(
         (t) => t.status !== 'done' && t.status !== 'cancelled'
       )
       capacityUsed = calculateUsedCapacity(cycleUserTasks)
-      loadStatus = getLoadStatus(capacityUsed)
+      zone = getZone(capacityUsed, target, tolerancePercent)
     }
 
-    return { profile, inProgress, todo, done, scopedTasks, capacityUsed, loadStatus, initial }
+    return { profile, inProgress, todo, done, scopedTasks, capacityUsed, zone, target, initial }
   })
 
-  const teamCapacityTotal = profiles.length * STORY_POINTS_LIMIT
+  const teamCapacityTotal = profiles.reduce((s, p) => s + (p.base_capacity ?? STORY_POINTS_LIMIT), 0)
   const totalUsed = teamData.reduce((s, m) => s + m.capacityUsed, 0)
   const utilization = teamCapacityTotal > 0 ? Math.round((totalUsed / teamCapacityTotal) * 100) : 0
   const totalUnassignedPts = calculateUsedCapacity(unassignedTasks)
@@ -64,7 +68,7 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
           <div className="grid grid-cols-3 gap-3 mb-4">
             {[
               { label: 'Pojemność', value: `${totalUsed} / ${teamCapacityTotal}`, unit: 'story points' },
-              { label: 'Wykorzystanie', value: `${utilization}%`, unit: `${profiles.length} × ${STORY_POINTS_LIMIT} pkt` },
+              { label: 'Wykorzystanie', value: `${utilization}%`, unit: `tolerancja ±${tolerancePercent}%` },
               { label: 'Nieprzypisane', value: String(totalUnassignedPts), unit: 'pkt', warn: totalUnassignedPts > 0 },
             ].map(({ label, value, unit, warn }) => (
               <div key={label} className="p-3 border border-compass-border rounded bg-compass-surface">
@@ -84,7 +88,7 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
 
       {/* Unified member rows */}
       <div className="space-y-3">
-        {teamData.map(({ profile, inProgress, todo, done, scopedTasks, capacityUsed, loadStatus, initial }) => (
+        {teamData.map(({ profile, inProgress, todo, done, scopedTasks, capacityUsed, zone, target, initial }) => (
           <div key={profile.id} className="compass-card p-4">
             <div className="flex items-start gap-3">
               {/* Avatar */}
@@ -115,11 +119,11 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
                   {activeCycle && (
                     <span className={cn(
                       'px-2 py-0.5 rounded text-xs font-semibold font-mono flex-shrink-0',
-                      loadStatus === 'ok' && 'bg-compass-success/15 text-compass-success',
-                      loadStatus === 'warning' && 'bg-compass-warning/15 text-compass-warning',
-                      loadStatus === 'danger' && 'bg-compass-danger/15 text-compass-danger',
+                      zone === 'green' && 'bg-compass-success/15 text-compass-success',
+                      zone === 'yellow' && 'bg-compass-warning/15 text-compass-warning',
+                      zone === 'red' && 'bg-compass-danger/15 text-compass-danger',
                     )}>
-                      {capacityUsed} / {STORY_POINTS_LIMIT} pkt
+                      {capacityUsed} / {target} pkt
                     </span>
                   )}
                 </div>
@@ -138,7 +142,8 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
                 {activeCycle ? (
                   <SprintCapacityBar
                     used={capacityUsed}
-                    limit={STORY_POINTS_LIMIT}
+                    limit={target}
+                    zone={zone}
                     showLabel={false}
                     className="mt-2"
                   />

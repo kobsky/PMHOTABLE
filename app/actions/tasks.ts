@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import type { TaskStatus, TaskPriority, TaskType, TaskWithRelations, DbProject, TaskSize, RaciMatrix } from '@/lib/supabase/types'
+import { getZone } from '@/lib/velocity/tolerance'
+import { STORY_POINTS_LIMIT } from '@/lib/capacity'
 
 const StoryPointsSchema = z.number().int().refine(
   (val) => [1, 2, 3, 5, 8, 13].includes(val),
@@ -346,17 +348,28 @@ export async function updateTaskStoryPoints(
 
   let warning: string | undefined
   if (task?.assignee_id && task?.cycle_id) {
-    const { data: sibling } = await auth.supabase
-      .from('tasks')
-      .select('story_points')
-      .eq('assignee_id', task.assignee_id)
-      .eq('cycle_id', task.cycle_id)
-      .neq('id', taskId)
-      .is('deleted_at', null)
+    const [siblingResult, cycleResult] = await Promise.all([
+      auth.supabase
+        .from('tasks')
+        .select('story_points')
+        .eq('assignee_id', task.assignee_id)
+        .eq('cycle_id', task.cycle_id)
+        .neq('id', taskId)
+        .is('deleted_at', null),
+      auth.supabase
+        .from('cycles')
+        .select('velocity_planned, tolerance_percent')
+        .eq('id', task.cycle_id)
+        .single(),
+    ])
 
-    const siblingSum = (sibling ?? []).reduce((s, t) => s + (t.story_points ?? 3), 0)
-    if (siblingSum + points > 12) {
-      warning = `Osoba ma już ${siblingSum} pkt — łącznie przekroczy 12 pkt`
+    const siblingSum = (siblingResult.data ?? []).reduce((s, t) => s + (t.story_points ?? 3), 0)
+    const total = siblingSum + points
+    const target = cycleResult.data?.velocity_planned ?? STORY_POINTS_LIMIT
+    const tolerancePercent = (cycleResult.data?.tolerance_percent as number | null) ?? 20
+    const zone = getZone(total, target, tolerancePercent)
+    if (zone !== 'green') {
+      warning = `Osoba ma już ${siblingSum} pkt — łącznie ${total} pkt (${zone === 'yellow' ? 'na granicy' : 'poza widełkami'} tolerancji ±${tolerancePercent}%)`
     }
   }
 

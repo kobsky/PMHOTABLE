@@ -115,6 +115,8 @@ export interface DbCycle {
   notes: string | null
   sprint_links: SprintLink[] | null
   unavailability: Record<string, UnavailabilityEntry[]> | null
+  // migracja 017
+  tolerance_percent: number
   created_at: string
 }
 

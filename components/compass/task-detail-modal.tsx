@@ -10,6 +10,7 @@ import type { AssigneeSuggestion } from '@/app/actions/ai'
 import { AssigneeSuggestions } from '@/components/compass/assignee-suggestions'
 import type { TaskWithRelations, DbTask, DbProject, DbUser, DbCycle, TaskStatus, TaskPriority, TaskType, RaciMatrix } from '@/lib/supabase/types'
 import { STORY_POINTS_VALUES, STORY_POINTS_LIMIT } from '@/lib/capacity'
+import { getZone } from '@/lib/velocity/tolerance'
 import {
   X, Trash2, ExternalLink, Plus, Link2, Calendar,
   Circle, Clock4, CheckCircle2, Ban, Loader2, ChevronDown,
@@ -570,9 +571,18 @@ export function TaskDetailModal({
                   {pts}
                 </button>
               ))}
-              {storyPoints > STORY_POINTS_LIMIT && (
-                <span className="font-mono text-2xs text-compass-warning ml-1">⚠ &gt;{STORY_POINTS_LIMIT}</span>
-              )}
+              {(() => {
+                const activeCycle = cycles.find((c) => c.id === cycleId)
+                const target = activeCycle?.velocity_planned ?? STORY_POINTS_LIMIT
+                const tol = activeCycle?.tolerance_percent ?? 20
+                const zone = getZone(storyPoints, target, tol)
+                if (zone === 'green') return null
+                return (
+                  <span className={`font-mono text-2xs ml-1 ${zone === 'yellow' ? 'text-compass-warning' : 'text-compass-danger'}`}>
+                    ⚠ {zone === 'yellow' ? 'Na granicy' : 'Poza widełkami'}
+                  </span>
+                )
+              })()}
             </div>
           </div>
 
