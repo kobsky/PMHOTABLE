@@ -108,9 +108,9 @@ export function SprintBoard({ initialTasks, cycleId, projects, profiles, cycles,
   )
 
   const inProgressCount = tasks.filter((t) => t.status === 'in_progress').length
-  const doneCount = tasks.filter((t) => t.status === 'done').length
-  const totalCount = tasks.filter((t) => t.status !== 'cancelled').length
-  const velocityTarget = velocityPlanned ?? totalCount
+  const activeTasks = tasks.filter((t) => t.status !== 'cancelled')
+  const usedPoints = activeTasks.reduce((sum, t) => sum + (t.story_points ?? 0), 0)
+  const velocityTarget = velocityPlanned ?? usedPoints
 
   async function handleDragEnd(result: DropResult) {
     const { destination, source, draggableId } = result
@@ -185,12 +185,12 @@ export function SprintBoard({ initialTasks, cycleId, projects, profiles, cycles,
         <div className="flex-1 h-1 bg-compass-surface-2 rounded-full overflow-hidden">
           <div
             className="h-full bg-compass-success transition-all duration-500 rounded-full"
-            style={{ width: `${velocityTarget > 0 ? Math.min(100, (doneCount / velocityTarget) * 100) : 0}%` }}
+            style={{ width: `${velocityTarget > 0 ? Math.min(100, (usedPoints / velocityTarget) * 100) : 0}%` }}
           />
         </div>
         <span className="font-mono text-2xs text-compass-dim whitespace-nowrap">
-          {doneCount}
-          {velocityPlanned ? `/${velocityPlanned} zapl.` : ` / ${totalCount} zadań`}
+          {usedPoints}
+          {velocityPlanned ? `/${velocityPlanned} pkt` : ` pkt`}
         </span>
       </div>
 

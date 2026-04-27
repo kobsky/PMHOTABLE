@@ -41,9 +41,7 @@ export function TeamCapacityView({ profiles, allTasks, activeCycle }: TeamCapaci
     let zone: 'green' | 'yellow' | 'red' = 'green'
 
     if (activeCycle) {
-      const cycleUserTasks = scopedTasks.filter(
-        (t) => t.status !== 'done' && t.status !== 'cancelled'
-      )
+      const cycleUserTasks = scopedTasks.filter((t) => t.status !== 'cancelled')
       capacityUsed = calculateUsedCapacity(cycleUserTasks)
       zone = getZone(capacityUsed, target, tolerancePercent)
     }

@@ -575,11 +575,11 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
         <select
           value={task.assignee_id ?? ''}
           onChange={(e) => onInlineUpdate(task.id, { assignee_id: e.target.value || null })}
-          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 bg-compass-surface-2 text-compass-text"
         >
-          <option value="">— Brak</option>
+          <option value="" className="bg-compass-surface-2 text-compass-text">— Brak</option>
           {profiles.map((p) => (
-            <option key={p.id} value={p.id}>{p.full_name ?? p.email}</option>
+            <option key={p.id} value={p.id} className="bg-compass-surface-2 text-compass-text">{p.full_name ?? p.email}</option>
           ))}
         </select>
         {assigneeInitial ? (
@@ -630,12 +630,12 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
         <select
           value={task.priority}
           onChange={(e) => onInlineUpdate(task.id, { priority: e.target.value as TaskPriority })}
-          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 bg-compass-surface-2 text-compass-text"
         >
-          <option value="urgent">Pilny</option>
-          <option value="high">Wysoki</option>
-          <option value="medium">Średni</option>
-          <option value="low">Niski</option>
+          <option value="urgent" className="bg-compass-surface-2 text-compass-text">Pilny</option>
+          <option value="high"   className="bg-compass-surface-2 text-compass-text">Wysoki</option>
+          <option value="medium" className="bg-compass-surface-2 text-compass-text">Średni</option>
+          <option value="low"    className="bg-compass-surface-2 text-compass-text">Niski</option>
         </select>
         <PriorityBadge priority={task.priority} />
       </div>

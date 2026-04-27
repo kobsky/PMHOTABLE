@@ -860,7 +860,7 @@ export function TaskDetailModal({
                 </button>
                 {showMoveToSprint && (
                   <div className="absolute bottom-full mb-1 left-0 w-52 bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-20 overflow-hidden">
-                    {cycles.filter((c) => !c.is_active).map((c) => (
+                    {cycles.filter((c) => c.id !== task.cycle_id).map((c) => (
                       <button
                         key={c.id}
                         type="button"
@@ -878,10 +878,10 @@ export function TaskDetailModal({
                         }}
                         className="w-full text-left px-3 py-2 text-xs text-compass-muted hover:bg-compass-surface-3 hover:text-compass-text transition-colors"
                       >
-                        {c.name}
+                        {c.name}{c.is_active ? ' ✦' : ''}
                       </button>
                     ))}
-                    {cycles.filter((c) => !c.is_active).length === 0 && (
+                    {cycles.filter((c) => c.id !== task.cycle_id).length === 0 && (
                       <p className="px-3 py-2 text-xs text-compass-dim">Brak innych sprintów</p>
                     )}
                   </div>
