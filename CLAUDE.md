@@ -66,3 +66,4 @@ Claude should be able to verify its own work. For this project:
 - Tests (when present): `pnpm test`
 
 If Claude completes a task without running at least the type check, the task is not complete.
+xx
