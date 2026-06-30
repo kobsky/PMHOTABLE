@@ -1,21 +1,37 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { ArrowRight, Sparkles, X, Check } from 'lucide-react'
+import { ArrowRight, Sparkles, X, Check, Scale } from 'lucide-react'
 import { updateTask } from '@/app/actions/tasks'
 import { logAIFeedback } from '@/app/actions/ai'
-import type { WorkloadSuggestion } from '@/app/actions/ai'
+import type { WorkloadSuggestion, WorkloadImbalance } from '@/app/actions/ai'
 
 interface Props {
   suggestions: WorkloadSuggestion[]
+  imbalance: WorkloadImbalance
 }
 
-export function WorkloadSuggestionsPanel({ suggestions: initial }: Props) {
+// Transparent bias-monitor banding for the Gini coefficient of active load.
+// Gini is a TRANSPARENCY signal (how concentrated the work is), not an
+// effectiveness/skuteczność claim — this is decision support, not ML.
+function giniBand(gini: number): { label: string; cls: string } {
+  if (gini >= 0.4) return { label: 'wysoka nierównowaga', cls: 'text-compass-danger' }
+  if (gini >= 0.2) return { label: 'umiarkowana nierównowaga', cls: 'text-compass-warning' }
+  return { label: 'obciążenie zrównoważone', cls: 'text-compass-success' }
+}
+
+export function WorkloadSuggestionsPanel({ suggestions: initial, imbalance }: Props) {
   const [suggestions, setSuggestions] = useState(initial)
   const [confirming, setConfirming] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  if (suggestions.length === 0) return null
+  // Show the imbalance indicator whenever there is any active load to report,
+  // even if no concrete move is suggested. Hide the whole panel only when there
+  // is nothing at all to show (no suggestions AND no load spread).
+  const hasLoad = imbalance.maxLoad > 0
+  if (suggestions.length === 0 && !hasLoad) return null
+
+  const band = giniBand(imbalance.gini)
 
   function remove(id: string) {
     setSuggestions(prev => prev.filter(s => s.suggestionId !== id))
@@ -54,9 +70,35 @@ export function WorkloadSuggestionsPanel({ suggestions: initial }: Props) {
       <div className="flex items-center gap-2 mb-2">
         <Sparkles size={13} className="text-compass-accent" />
         <span className="font-mono text-2xs text-compass-muted uppercase tracking-wider">
-          AI · Workload Suggestions
+          Wsparcie decyzji · Obciążenie zespołu
         </span>
       </div>
+
+      {/* Imbalance / bias monitor — Gini of active-task counts across the team.
+          Transparency signal, not an effectiveness claim. */}
+      {hasLoad && (
+        <div className="compass-card p-3 mb-2 flex items-center gap-3">
+          <Scale size={14} className={band.cls} strokeWidth={1.5} />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-compass-text leading-snug">
+              Rozkład obciążenia:{' '}
+              <span className={`font-semibold ${band.cls}`}>{band.label}</span>
+            </p>
+            <div className="flex items-center gap-3 mt-1 font-mono text-2xs text-compass-dim">
+              <span>Gini {imbalance.gini.toFixed(2)}</span>
+              <span>wariancja {imbalance.variance.toFixed(2)}</span>
+              <span>rozpiętość {imbalance.minLoad}–{imbalance.maxLoad}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {suggestions.length === 0 && (
+        <p className="font-mono text-2xs text-compass-dim">
+          Brak propozycji przesunięć — rozkład pracy jest akceptowalny.
+        </p>
+      )}
+
       <div className="flex flex-col gap-2">
         {suggestions.map(s => {
           const isConfirming = confirming === s.suggestionId

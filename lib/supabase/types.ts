@@ -19,7 +19,17 @@ export type GoalType = 'objective' | 'key_result' | 'grant_milestone'
 export type GoalStatus = 'on_track' | 'at_risk' | 'off_track' | 'achieved'
 export type IdeaStatus = 'inbox' | 'accepted' | 'rejected' | 'converted'
 export type IdeaSource = 'founders_meeting' | 'user_feedback' | 'competitor' | 'market' | 'other'
-export type AiFeature = 'assignee_recommender' | 'workload_balancing' | 'auto_categorization'
+// Rozszerzone w migracji 020 (Tier 2): nowe nazwy funkcji wspomagania decyzji
+// (sp_estimation_baseline=U2, wsjf_prioritization=U5) oraz klasyfikator ML
+// (task_type_classifier_ml=U1). ai_feedback rejestruje WYŁĄCZNIE surowe
+// interakcje (accept/reject/apply/dismiss) — nie "skuteczność".
+export type AiFeature =
+  | 'assignee_recommender'
+  | 'workload_balancing'
+  | 'auto_categorization'
+  | 'sp_estimation_baseline'
+  | 'wsjf_prioritization'
+  | 'task_type_classifier_ml'
 export type TaskSize = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL'
 export type SprintLinkLabel = 'blocker' | 'info' | 'doc'
 
@@ -98,6 +108,14 @@ export interface DbTask {
   raci?: RaciMatrix | null
   // migracja 016
   story_points?: number | null
+  // migracja 020 (U5 — SAFe WSJF, wspomaganie decyzji, BEZ LLM/ML)
+  // Cztery komponenty WSJF: CoD = user_value + time_criticality + risk_reduction,
+  // mianownik = job_size. Wszystkie nullowalne (zadania nieoszacowane).
+  // DODANE RĘCZNIE — wygeneruj typy ponownie po deployu migracji 020.
+  wsjf_user_value?: number | null
+  wsjf_time_criticality?: number | null
+  wsjf_risk_reduction?: number | null
+  wsjf_job_size?: number | null
   created_at: string
   updated_at: string
 }

@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react'
 import { PageHeader } from '@/components/compass/page-header'
 import { inferTaskType } from '@/lib/utils'
 import { getWorkloadSuggestions, getAssigneeRecommendation } from '@/app/actions/ai'
+import { getProfiles } from '@/app/actions/users'
+import { getAllTasksWithRelations } from '@/app/actions/tasks'
 import type { TaskTypeInference } from '@/lib/utils'
 import type { AssigneeSuggestion, WorkloadSuggestion } from '@/app/actions/ai'
 import { cn } from '@/lib/utils'
@@ -215,7 +217,7 @@ function WorkloadTester() {
 
   function runTest() {
     startTransition(async () => {
-      const res = await getWorkloadSuggestions()
+      const res = await getWorkloadSuggestions(await getProfiles(), await getAllTasksWithRelations())
       if (res.error) {
         setError(res.error)
       } else {

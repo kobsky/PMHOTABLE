@@ -7,6 +7,8 @@ import { cn, formatDate, scopeColor, inferTaskType, getTaskTypeLabel, getTaskTyp
 import { updateTask, deleteTask, createSubtask, updateSubtaskStatus, removeSubtask, reorderSubtasks, moveTaskToCycle, updateTaskStoryPoints } from '@/app/actions/tasks'
 import { logAIFeedback, getAssigneeRecommendation } from '@/app/actions/ai'
 import type { AssigneeSuggestion } from '@/app/actions/ai'
+import { getStoryPointSuggestion } from '@/app/actions/estimation'
+import type { StoryPointSuggestion } from '@/lib/estimation'
 import { AssigneeSuggestions } from '@/components/compass/assignee-suggestions'
 import type { TaskWithRelations, DbTask, DbProject, DbUser, DbCycle, TaskStatus, TaskPriority, TaskType, RaciMatrix } from '@/lib/supabase/types'
 import { STORY_POINTS_VALUES, STORY_POINTS_LIMIT } from '@/lib/capacity'
@@ -120,9 +122,19 @@ export function TaskDetailModal({
   const [typeSuggestion, setTypeSuggestion] = useState<{ type: TaskType; confidence: number } | null>(null)
   const [suggestionDismissed, setSuggestionDismissed] = useState(false)
 
-  // AI assignee suggestion — fetched from Claude when modal opens
+  // U3 — assignee suggestion (DECISION SUPPORT, deterministic — no LLM).
+  // Behind an explicit "Zasugeruj" button; cached by task.id so reopening the
+  // same task does not refetch. No auto-fire on modal open.
   const [assigneeSuggestions, setAssigneeSuggestions] = useState<AssigneeSuggestion[]>([])
+  const [assigneeLoadGini, setAssigneeLoadGini] = useState(0)
   const [assigneeSuggestionsDismissed, setAssigneeSuggestionsDismissed] = useState(false)
+  const [assigneeLoading, setAssigneeLoading] = useState(false)
+  // Cache key of the task whose suggestions are currently held (null = none fetched yet).
+  const [assigneeCachedFor, setAssigneeCachedFor] = useState<string | null>(null)
+
+  // U2 — story-point median baseline suggestion (DECISION SUPPORT — no LLM).
+  const [spSuggestion, setSpSuggestion] = useState<StoryPointSuggestion | null>(null)
+  const [spSuggestionDismissed, setSpSuggestionDismissed] = useState(false)
 
   // Subtask state
   const [localSubtasks, setLocalSubtasks] = useState<DbTask[]>(task.subtasks ?? [])
@@ -163,19 +175,33 @@ export function TaskDetailModal({
     setTypeSuggestion(null)
     setSuggestionDismissed(false)
     setAssigneeSuggestions([])
+    setAssigneeLoadGini(0)
     setAssigneeSuggestionsDismissed(false)
+    setAssigneeLoading(false)
+    setAssigneeCachedFor(null)
+    setSpSuggestion(null)
+    setSpSuggestionDismissed(false)
     setRaci(task.raci ?? { responsible: null, accountable: [], consulted: [], informed: [] })
     setStoryPoints(task.story_points ?? 3)
     setCapacityWarning(null)
   }, [task.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch assignee suggestions from Claude when modal opens
-  useEffect(() => {
-    if (!open || assigneeSuggestionsDismissed || assigneeSuggestions.length > 0) return
-    void getAssigneeRecommendation(task.title, task.description, task.id).then(({ suggestions }) => {
-      setAssigneeSuggestions(suggestions)
-    })
-  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+  // U3 — explicit fetch (no auto-fire). Cached by task.id: if we already have a
+  // result for this task, reopening / re-clicking does not refetch.
+  function handleSuggestAssignee() {
+    if (assigneeLoading) return
+    setAssigneeSuggestionsDismissed(false)
+    // Cache hit — already computed for this task; just re-show.
+    if (assigneeCachedFor === task.id) return
+    setAssigneeLoading(true)
+    void getAssigneeRecommendation(task.title, description || null, task.id)
+      .then(({ suggestions, loadGini }) => {
+        setAssigneeSuggestions(suggestions)
+        setAssigneeLoadGini(loadGini)
+        setAssigneeCachedFor(task.id)
+      })
+      .finally(() => setAssigneeLoading(false))
+  }
 
   // Recompute AI suggestion when title changes
   useEffect(() => {
@@ -187,6 +213,50 @@ export function TaskDetailModal({
       setTypeSuggestion(null)
     }
   }, [title]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // U2 — fetch the median story-point baseline for the current (type, size)
+  // bucket. Decision support only; the user applies it manually if useful.
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    void getStoryPointSuggestion(type, task.size ?? null).then(({ suggestion }) => {
+      if (!cancelled) setSpSuggestion(suggestion)
+    })
+    return () => { cancelled = true }
+  }, [open, type]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handleApplyStoryPointSuggestion() {
+    if (!spSuggestion) return
+    const sug = spSuggestion
+    setStoryPoints(sug.points)
+    setSpSuggestionDismissed(true)
+    if (task.id && !task.id.startsWith('temp-')) {
+      void updateTaskStoryPoints(task.id, sug.points).then(({ warning }) => {
+        setCapacityWarning(warning ?? null)
+      })
+    }
+    // Raw interaction logging only (apply) — adoption, not effectiveness.
+    void logAIFeedback({
+      feature: 'sp_estimation_baseline',
+      taskId: task.id,
+      suggestion: { points: sug.points, basis: sug.basis, sampleSize: sug.sampleSize },
+      accepted: true,
+    })
+  }
+
+  function handleDismissStoryPointSuggestion() {
+    if (!spSuggestion) return
+    const sug = spSuggestion
+    setSpSuggestionDismissed(true)
+    // Raw interaction logging only (dismiss).
+    void logAIFeedback({
+      feature: 'sp_estimation_baseline',
+      taskId: task.id,
+      suggestion: { points: sug.points, basis: sug.basis, sampleSize: sug.sampleSize },
+      accepted: false,
+      overrideValue: { points: storyPoints },
+    })
+  }
 
   function handleAddLink() {
     const url = linkInput.trim()
@@ -443,15 +513,33 @@ export function TaskDetailModal({
               </div>
             )}
 
-            {/* AI assignee suggestion chips */}
-            {!assigneeSuggestionsDismissed && assigneeSuggestions.length > 0 && (
+            {/* U3 — explicit assignee suggestion (no auto-fire) */}
+            {!assigneeSuggestionsDismissed && assigneeCachedFor === task.id && assigneeSuggestions.length > 0 ? (
               <AssigneeSuggestions
                 suggestions={assigneeSuggestions}
+                loadGini={assigneeLoadGini}
                 taskId={task.id}
                 currentAssigneeId={assigneeId}
                 onAccept={(id) => setAssigneeId(id)}
                 onDismissAll={() => setAssigneeSuggestionsDismissed(true)}
               />
+            ) : (
+              <div className="pb-3">
+                <button
+                  type="button"
+                  onClick={handleSuggestAssignee}
+                  disabled={assigneeLoading}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] bg-compass-surface-2 border border-compass-accent/30 text-xs text-compass-muted hover:bg-compass-surface-3 hover:text-compass-text transition-colors disabled:opacity-50"
+                >
+                  {assigneeLoading
+                    ? <Loader2 size={11} className="text-compass-accent animate-spin flex-shrink-0" />
+                    : <Sparkles size={11} className="text-compass-accent flex-shrink-0" />}
+                  {assigneeLoading ? 'Liczę…' : 'Zasugeruj przydział'}
+                </button>
+                {!assigneeLoading && assigneeCachedFor === task.id && assigneeSuggestions.length === 0 && (
+                  <p className="font-mono text-2xs text-compass-dim/60 mt-1">Brak sugestii dla tego zadania</p>
+                )}
+              </div>
             )}
           </div>
 
@@ -596,6 +684,32 @@ export function TaskDetailModal({
                 )
               })()}
             </div>
+
+            {/* U2 — story-point median baseline hint (decision support) */}
+            {spSuggestion && !spSuggestionDismissed && spSuggestion.points !== storyPoints && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-[3px] bg-compass-surface-2 border border-compass-accent/30 text-2xs">
+                <Sparkles size={10} className="text-compass-accent flex-shrink-0" />
+                <span className="text-compass-dim font-mono">
+                  sugestia: {spSuggestion.points} pkt
+                  <span className="text-compass-dim/60"> (mediana, n={spSuggestion.sampleSize})</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleApplyStoryPointSuggestion}
+                  className="px-1.5 py-0.5 rounded-[3px] font-medium bg-compass-accent/15 text-compass-accent hover:bg-compass-accent/25 transition-colors border border-compass-accent/30"
+                >
+                  Zastosuj
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDismissStoryPointSuggestion}
+                  className="p-0.5 rounded-[3px] text-compass-dim hover:text-compass-muted transition-colors"
+                  aria-label="Odrzuć sugestię story points"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Capacity warning */}

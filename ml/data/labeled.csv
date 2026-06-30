@@ -1,0 +1,1101 @@
+text,label,source
+datetime string do not take decimal fraction into account,ops,hf_github_issues
+Investigate performance,research,synthetic_en
+Nowa funkcja: filtr backlogu,development,synthetic_pl
+feature request,development,hf_github_issues
+Zgłoszenie klienta dotyczące tablicy sprintu,support,synthetic_pl
+Fix bug in auth flow,support,synthetic_en
+Kampania marketingowa na blog,marketing,synthetic_pl
+Update documentation for README,ops,synthetic_en
+Partnership outreach: klientów enterprise,outreach,synthetic_en
+Zaimplementuj tryb ciemny,development,synthetic_pl
+Resolve crash in kalendarza,support,synthetic_en
+Rozeznanie rynku: konkurencji,research,synthetic_pl
+don t grab theme icon for script,development,hf_github_issues
+Cold outreach to 20 hotels,outreach,synthetic_en
+Implement tryb ciemny,development,synthetic_en
+have parent builder exception message param fix,development,hf_github_issues
+Analysis of modelu cenowego,research,synthetic_en
+documentation for neo4j mention nodeentityscan not entityscan,ops,hf_github_issues
+Grafika i layout dla dashboard mockup,design,synthetic_pl
+Setup Next.js to v15,ops,synthetic_en
+Add filtr backlogu to the app,development,synthetic_en
+Plan marketing campaign on kampanię SEO,marketing,synthetic_en
+Run promo on kampanię SEO,marketing,synthetic_en
+Hotfix: zepsute realtime,support,synthetic_pl
+fix may be use unitialized warning in render pass create and draw list insert clear region,development,hf_github_issues
+Wdrożenie Next.js do v15,ops,synthetic_pl
+Prepare press release about widok Gantt,marketing,synthetic_en
+create next app should use npm by default when call with npx,support,hf_github_issues
+Zgłoszenie klienta dotyczące realtime,support,synthetic_pl
+gap between video when play fragmented mp4 file in concatenatingmediasource,development,hf_github_issues
+nhl error unable to download video datum,support,hf_github_issues
+Zgłoszenie klienta dotyczące login,support,synthetic_pl
+Nowa funkcja: Gantt view,development,synthetic_pl
+Write blog post about frameworka,marketing,synthetic_en
+Prepare press release about CSV export,marketing,synthetic_en
+autoupdate generator script userdef cache dir,development,hf_github_issues
+make some enhancement to the pot generation,development,hf_github_issues
+update the minimum size of label if necessary when resize,support,hf_github_issues
+Rozeznanie rynku: the pricing model,research,synthetic_pl
+Konfiguracja Next.js to v15,ops,synthetic_pl
+Resolve crash in formularza,support,synthetic_en
+dynamic rendering of user detail,development,hf_github_issues
+x review git codereview documentation and tool behavior don t match for git codereview change,ops,hf_github_issues
+Napraw błąd w paginacji,support,synthetic_pl
+Pozyskanie sieci hotelowe,outreach,synthetic_pl
+Pitch sprzedażowy dla klientów enterprise,outreach,synthetic_pl
+run intro exit animation,development,hf_github_issues
+Update documentation for Next.js to v15,ops,synthetic_en
+Run promo on blog,marketing,synthetic_en
+Launch SEO campaign campaign,marketing,synthetic_en
+Error in kalendarza reported by user,support,synthetic_en
+Create new powiadomienia email,development,synthetic_en
+Investigate security posture,research,synthetic_en
+x crypto nacl secretbox clarify message size limit with seal function,ops,hf_github_issues
+Sales pitch for 20 hotels,outreach,synthetic_en
+requirement zipkin setup on linux machine,development,hf_github_issues
+how to remove playernotificationmanager when playlist arrive some track,support,hf_github_issues
+add a tooltip to filter value set in preference,development,hf_github_issues
+nacos namingservice configservice,development,hf_github_issues
+Grafika i layout dla stronę docelową,design,synthetic_pl
+Partnerstwo: 20 hoteli,outreach,synthetic_pl
+Aktualizacja CI/CD pipeline,ops,synthetic_pl
+process env variable be replace at run time,ops,hf_github_issues
+use mock maker inline on mocktio to mock final class on all test case,development,hf_github_issues
+allow disable all statusline,development,hf_github_issues
+Fix bug in paginacji,support,synthetic_en
+Partnerstwo: inwestorów,outreach,synthetic_pl
+Zgłoszenie klienta dotyczące paginacji,support,synthetic_pl
+text template add more package doc,ops,hf_github_issues
+display correct message for iterrable string for miss downlevel iterator flag,support,hf_github_issues
+refactor editor theme generation and add spacing preset,development,hf_github_issues
+Przygotuj newsletter o dashboard KPI,marketing,synthetic_pl
+Research: evaluate the framework,research,synthetic_en
+thread pool should be create with namedthreadfactory for identification,development,hf_github_issues
+Dodaj task search,development,synthetic_pl
+add readme md in hack,ops,hf_github_issues
+Partnerstwo: potential partners,outreach,synthetic_pl
+Prototyp system ikon,design,synthetic_pl
+fix deprecation warning in javadoc comment,ops,hf_github_issues
+allow a top and bottom radius equal to 0 in cylindermesh,ops,hf_github_issues
+Create mockup for stronę docelową,design,synthetic_en
+Zbuduj dark mode,development,synthetic_pl
+add sass package in installation command,ops,hf_github_issues
+Pitch sprzedażowy dla early adopters,outreach,synthetic_pl
+Konfiguracja migrację bazy,ops,synthetic_pl
+Refaktoryzacja tablicy sprintu,ops,synthetic_pl
+Audit third-party APIs,research,synthetic_en
+Schedule demo with wczesnych użytkowników,outreach,synthetic_en
+discussion deprecate non type safe gson fromjson type overload,development,hf_github_issues
+Build powiadomienia email,development,synthetic_en
+pt run registry allow to open key via registry editor regedit without elevation,development,hf_github_issues
+for the life of I I can t figure out what s happen api route come back 404 in certain area but work locally,support,hf_github_issues
+Grafika i layout dla makietę dashboardu,design,synthetic_pl
+Wireframe stronę docelową,design,synthetic_en
+Kampania marketingowa na kampanię email,marketing,synthetic_pl
+Badanie security posture przed decyzją,research,synthetic_pl
+Optymalizacja SEO dla Instagram,marketing,synthetic_pl
+Prepare press release about kreator onboardingu,marketing,synthetic_en
+Handle customer feedback on the editor,support,synthetic_en
+Spike: explore rynku hotelowego,research,synthetic_en
+unmet peer dependency,support,hf_github_issues
+bug regression 35930 break cjs via esm loading when export null undefine with electron run as node,support,hf_github_issues
+Sales pitch for potencjalnych partnerów,outreach,synthetic_en
+Promocja produktu przez newsletter,marketing,synthetic_pl
+Napisz artykuł na Instagram,marketing,synthetic_pl
+Przygotuj newsletter o powiadomienia email,marketing,synthetic_pl
+Hotfix: realtime is broken,support,synthetic_en
+default log level be inconsistent between log4j2 and logback,support,hf_github_issues
+generictyperesolver do not resolve the correct parameter type when bind type be also parameterizedtype spr 10819,support,hf_github_issues
+Cold mailing do enterprise leads,outreach,synthetic_pl
+Kampania email do inwestorów,marketing,synthetic_pl
+Zbuduj CSV export,development,synthetic_pl
+Dodaj tryb ciemny,development,synthetic_pl
+Setup dokumentację API,ops,synthetic_en
+Configure Next.js to v15,ops,synthetic_en
+fix index out of size textedit s spam to output when use expression node in the visual shader,support,hf_github_issues
+Przygotuj newsletter o kreator onboardingu,marketing,synthetic_pl
+android export validate apk content before export,development,hf_github_issues
+Design paletę kolorów,design,synthetic_en
+Growth: acquire potencjalnych partnerów,outreach,synthetic_en
+Pozyskanie enterprise leads,outreach,synthetic_pl
+Redesign typografię,design,synthetic_en
+Makieta: landing page,design,synthetic_pl
+question show symbol instead of symbol name,development,hf_github_issues
+Plan marketing campaign on kampanię email,marketing,synthetic_en
+Hotfix: the calendar is broken,support,synthetic_en
+Cold outreach to sieci hotelowe,outreach,synthetic_en
+Run promo on LinkedIn,marketing,synthetic_en
+explanation for module,ops,hf_github_issues
+Growth: acquire 20 hotels,outreach,synthetic_en
+Dodaj wyszukiwarkę zadań,development,synthetic_pl
+Write blog post about narzędzi PM,marketing,synthetic_en
+POC dla konkurencji,research,synthetic_pl
+Prototype kartę zadania in Figma,design,synthetic_en
+Błąd w obszarze the form,support,synthetic_pl
+Write blog post about rynku hotelowego,marketing,synthetic_en
+enhance support for oracle sql parse,development,hf_github_issues
+Hotfix: the form is broken,support,synthetic_en
+Investigate the hotel market,research,synthetic_en
+Pozyskanie 20 hotels,outreach,synthetic_pl
+Kampania email do investors,marketing,synthetic_pl
+bug particle 2d lightmask viewport,support,hf_github_issues
+flink 2777 the description of programming guide html have some issue,ops,hf_github_issues
+Cold outreach to enterprise leads,outreach,synthetic_en
+Grafika i layout dla paletę kolorów,design,synthetic_pl
+Redesign paletę kolorów,design,synthetic_en
+Implement backlog filter,development,synthetic_en
+SEO optimization for X (Twitter),marketing,synthetic_en
+Resolve crash in auth flow,support,synthetic_en
+SEO optimization for blog,marketing,synthetic_en
+Prototype color palette in Figma,design,synthetic_en
+Nowa funkcja: dark mode,development,synthetic_pl
+Nowa funkcja: kreator onboardingu,development,synthetic_pl
+Przeprojektuj kartę zadania,design,synthetic_pl
+android refactor custom build option in export preset,development,hf_github_issues
+3d object drop into the viewport do not respect original positioning and reset it to cursor position,support,hf_github_issues
+Pitch sprzedażowy dla 20 hotels,outreach,synthetic_pl
+SEO optimization for Instagram,marketing,synthetic_en
+8720 fix the problem that request log publishconfig and deleteconfig do not effectively work,support,hf_github_issues
+Prototype task card in Figma,design,synthetic_en
+optimize scale core package,development,hf_github_issues
+Implement task search,development,synthetic_en
+SEO optimization for email campaign,marketing,synthetic_en
+Configure Dockerfile,ops,synthetic_en
+Growth: acquire sieci hotelowe,outreach,synthetic_en
+correct typos chapter 21 jms spr 7609,ops,hf_github_issues
+Zaimplementuj Gantt view,development,synthetic_pl
+Build filtr backlogu,development,synthetic_en
+Rozwiąż problem z tablicy sprintu,support,synthetic_pl
+doc move icpmain handle call in tutorial part 3,ops,hf_github_issues
+Fix bug in kalendarza,support,synthetic_en
+Wdrożenie dependencies,ops,synthetic_pl
+debug console do not support special code color clear line etc,support,hf_github_issues
+round managedfield time to the near second before sort,support,hf_github_issues
+Refactor logowania code,ops,synthetic_en
+Optymalizacja SEO dla social media,marketing,synthetic_pl
+menuitem toolbar tool could use an option for radio check item,development,hf_github_issues
+some 2d nodes aren t visible canvas item add triangle array doesn t work,support,hf_github_issues
+document that order can not be use on a filter s bean method to set the filter s order,ops,hf_github_issues
+Hotfix: zepsute auth flow,support,synthetic_pl
+warn message not consistent with buld style guide,ops,hf_github_issues
+fix typo,ops,hf_github_issues
+Nowa funkcja: panel KPI,development,synthetic_pl
+draggin in out from port to create node in animation blend tree editor,development,hf_github_issues
+Grafika i layout dla logo,design,synthetic_pl
+rustc perf fail to build after 107956,support,hf_github_issues
+macos colemak keyboard not correctly use switch to qwerty,development,hf_github_issues
+incorrect text be display after capture the sector,support,hf_github_issues
+Aktualizacja API docs,ops,synthetic_pl
+Research: evaluate the pricing model,research,synthetic_en
+doc upgrade to docusaurus 2,ops,hf_github_issues
+Handle customer feedback on the calendar,support,synthetic_en
+net after call of tcp udp ip unix conn tcp unix listener file the deadline will be ineffective,ops,hf_github_issues
+Run promo on social media,marketing,synthetic_en
+Add Gantt view to the app,development,synthetic_en
+Integrate panel KPI,development,synthetic_en
+Promocja produktu przez social media,marketing,synthetic_pl
+support order by clause for aggregation,development,hf_github_issues
+Build email digest,development,synthetic_en
+delegation of nextreader call,development,hf_github_issues
+taskbar widget to view currently select virtual desktop,development,hf_github_issues
+el editor de dise o de fancy zone no funciona,support,hf_github_issues
+Growth: acquire early adopters,outreach,synthetic_en
+Zaprojektuj landing page,design,synthetic_pl
+launch pad menu icon and build texture don t match the new launch pad texture,support,hf_github_issues
+correct exposure shutter speed description to match reality and engine functionality,ops,hf_github_issues
+Analiza modelu cenowego,research,synthetic_pl
+store arraymesh path in renderingserver for use in error message,development,hf_github_issues
+rust server add client documentation to rust server,ops,hf_github_issues
+Umów demo z inwestorów,outreach,synthetic_pl
+improve create your own starter to mention how to document property,ops,hf_github_issues
+Sales pitch for potential partners,outreach,synthetic_en
+flink 5303 table support for sql grouping set clause,ops,hf_github_issues
+Przygotuj newsletter o CSV export,marketing,synthetic_pl
+getter property be not accessible at run time es6,support,hf_github_issues
+Dokumentacja README,ops,synthetic_pl
+Growth: acquire enterprise leads,outreach,synthetic_en
+Aktualizacja Next.js do v15,ops,synthetic_pl
+Sales pitch for inwestorów,outreach,synthetic_en
+cmd go revise go help documentation for module and module aware command,ops,hf_github_issues
+support reassign own statement and refresh materialize view statement in postgresql,development,hf_github_issues
+Spike: explore security posture,research,synthetic_en
+Partnerstwo: klientów enterprise,outreach,synthetic_pl
+POC dla wydajności,research,synthetic_pl
+Write blog post about the hotel market,marketing,synthetic_en
+Wdróż kreator onboardingu,development,synthetic_pl
+Rozwiąż problem z login,support,synthetic_pl
+Zaprojektuj dashboard mockup,design,synthetic_pl
+Prototyp makietę dashboardu,design,synthetic_pl
+Błąd w obszarze pagination,support,synthetic_pl
+Configure Next.js do v15,ops,synthetic_en
+profiling support downsampling of generic event,development,hf_github_issues
+unable to configure next config js,support,hf_github_issues
+Hotfix: zepsute login,support,synthetic_pl
+Launch media społecznościowe campaign,marketing,synthetic_en
+Rozeznanie rynku: security posture,research,synthetic_pl
+Zbuduj eksport CSV,development,synthetic_pl
+Design logo,design,synthetic_en
+Plan marketing campaign on email campaign,marketing,synthetic_en
+Launch newsletter campaign,marketing,synthetic_en
+can we override visibility of prev and next button,development,hf_github_issues
+Redesign icon set,design,synthetic_en
+Configure the DB migration,ops,synthetic_en
+Zaprojektuj paletę kolorów,design,synthetic_pl
+Redesign dashboard mockup,design,synthetic_en
+Implement Gantt view,development,synthetic_en
+add changelog of 6 2 0,ops,hf_github_issues
+bug memory corruption in cv repeat when src dst,support,hf_github_issues
+Sales pitch for 20 hoteli,outreach,synthetic_en
+Błąd w obszarze formularza,support,synthetic_pl
+fix miss undefined check,support,hf_github_issues
+track issue spring clean the runtime,development,hf_github_issues
+Rozeznanie rynku: third-party APIs,research,synthetic_pl
+Rozeznanie rynku: narzędzi PM,research,synthetic_pl
+micro speech recognize command test cc bug,support,hf_github_issues
+Rozwiąż problem z formularza,support,synthetic_pl
+Umów demo z wczesnych użytkowników,outreach,synthetic_pl
+Handle customer feedback on paginacji,support,synthetic_en
+Aktualizacja konfigurację ESLint,ops,synthetic_pl
+Umów demo z potencjalnych partnerów,outreach,synthetic_pl
+Napisz artykuł na media społecznościowe,marketing,synthetic_pl
+Zbuduj dashboard KPI,development,synthetic_pl
+Error in the calendar reported by user,support,synthetic_en
+Nowa funkcja: backlog filter,development,synthetic_pl
+Setup ESLint config,ops,synthetic_en
+Implement kreator onboardingu,development,synthetic_en
+Optymalizacja SEO dla kampanię email,marketing,synthetic_pl
+Zaimplementuj email digest,development,synthetic_pl
+Kampania email do hotel chains,marketing,synthetic_pl
+SEO optimization for newsletter,marketing,synthetic_en
+Dokumentacja the DB migration,ops,synthetic_pl
+Makieta: system ikon,design,synthetic_pl
+collision exception and node freeing error in godot 4 0 3,ops,hf_github_issues
+doc test ts doc change,ops,hf_github_issues
+k8s deployment can not be elect normally warn be leader no leader be available now,support,hf_github_issues
+Pozyskanie inwestorów,outreach,synthetic_pl
+Integrate filtr backlogu,development,synthetic_en
+Hotfix: zepsute tablicy sprintu,support,synthetic_pl
+drop levelremappingappend,ops,hf_github_issues
+Audit competitor pricing,research,synthetic_en
+feature request support access log for webui,development,hf_github_issues
+Pozyskanie early adopters,outreach,synthetic_pl
+indexshardgatewayservice should not call post recovery if shard be in start state,support,hf_github_issues
+Sales pitch for hotel chains,outreach,synthetic_en
+render loop in live example in the documentation waste energy,ops,hf_github_issues
+Analysis of PM tools,research,synthetic_en
+community contribution for google grpc starter project,ops,hf_github_issues
+Badanie the hotel market przed decyzją,research,synthetic_pl
+Zbadaj security posture,research,synthetic_pl
+Wdróż email digest,development,synthetic_pl
+Błąd w obszarze autoryzacji,support,synthetic_pl
+Rozeznanie rynku: modelu cenowego,research,synthetic_pl
+install txt reference incorrect package groovy version,ops,hf_github_issues
+transition from vim wiki link break,ops,hf_github_issues
+cmd link fail to set variable at build time if variable value be result from method call,ops,hf_github_issues
+Run promo on X (Twitter),marketing,synthetic_en
+Partnership outreach: hotel chains,outreach,synthetic_en
+add utf 8 only comment to three decoder,ops,hf_github_issues
+Rozeznanie rynku: bezpieczeństwa,research,synthetic_pl
+Prepare press release about wyszukiwarkę zadań,marketing,synthetic_en
+Schedule demo with 20 hoteli,outreach,synthetic_en
+when play multiplayer campaign client side research doesn t use resource,support,hf_github_issues
+Create new CSV export,development,synthetic_en
+Research: evaluate wydajności,research,synthetic_en
+Promocja produktu przez X (Twitter),marketing,synthetic_pl
+scn 3d scene invisible in the editor but visible in the running project,support,hf_github_issues
+fix typo in manual change,ops,hf_github_issues
+Investigate PM tools,research,synthetic_en
+Fix bug in the form,support,synthetic_en
+doc add a note that tray setimage can segfault on linux,ops,hf_github_issues
+Spike: explore wydajności,research,synthetic_en
+Research: evaluate PM tools,research,synthetic_en
+Partnership outreach: 20 hotels,outreach,synthetic_en
+Wdróż dark mode,development,synthetic_pl
+change hashmap to linkedhashmap for deterministic iteration,development,hf_github_issues
+Badanie modelu cenowego przed decyzją,research,synthetic_pl
+vertical alignement tabcontainer menu button,development,hf_github_issues
+Add kreator onboardingu to the app,development,synthetic_en
+Spike: explore narzędzi PM,research,synthetic_en
+Plan marketing campaign on LinkedIn,marketing,synthetic_en
+Zbadaj konkurencji,research,synthetic_pl
+Kampania marketingowa na Instagram,marketing,synthetic_pl
+add support for openxr varjo quad view render,development,hf_github_issues
+echoparam doesn t work as advertise,support,hf_github_issues
+Konfiguracja dependencies,ops,synthetic_pl
+random nvoglv32 dll crash,support,hf_github_issues
+Email campaign for potencjalnych partnerów,marketing,synthetic_en
+Reklama na email campaign,marketing,synthetic_pl
+Cold outreach to hotel chains,outreach,synthetic_en
+enhance invalidate token api,development,hf_github_issues
+Handle customer feedback on edytora,support,synthetic_en
+Wdrożenie README,ops,synthetic_pl
+flink 27086 doc add a qa about how to handle exception when use hive parser in hive dialect document,ops,hf_github_issues
+exoplayer do not play h264 avc1 file on galaxy tab a7,support,hf_github_issues
+Partnerstwo: potencjalnych partnerów,outreach,synthetic_pl
+add mustache template support,development,hf_github_issues
+update 404 get initial prop md,ops,hf_github_issues
+Kampania email do klientów enterprise,marketing,synthetic_pl
+Setup API docs,ops,synthetic_en
+Zbuduj task search,development,synthetic_pl
+Promocja produktu przez Instagram,marketing,synthetic_pl
+jooq version upgrade to 3 7 0,development,hf_github_issues
+Update documentation for dependencies,ops,synthetic_en
+Upgrade zależności,ops,synthetic_en
+feature request allow capture video photo in browser,development,hf_github_issues
+doc document optional scalefactor param to nativeimage fns,ops,hf_github_issues
+Design task card,design,synthetic_en
+change filelocksmith activation bahaviour,development,hf_github_issues
+godot 4 beta 17 shader doesn t compute after project reload,support,hf_github_issues
+Write blog post about konkurencji,marketing,synthetic_en
+detection of nest configuration could be more lenient,development,hf_github_issues
+Refaktoryzacja the form,ops,synthetic_pl
+Napraw błąd w the editor,support,synthetic_pl
+texture unpacker implementation with support for ninepatch,development,hf_github_issues
+Hotfix: zepsute logowania,support,synthetic_pl
+Refaktoryzacja formularza,ops,synthetic_pl
+applicationreadyevent fire multiple time while use springapplicationbuilder,ops,hf_github_issues
+Prepare press release about panel KPI,marketing,synthetic_en
+fix python3 8 relative import,development,hf_github_issues
+Error in autoryzacji reported by user,support,synthetic_en
+Schedule demo with hotel chains,outreach,synthetic_en
+Aktualizacja Dockerfile,ops,synthetic_pl
+POC dla security posture,research,synthetic_pl
+Implement dashboard KPI,development,synthetic_en
+flink 30923 documentation provide single script for instal hugo,ops,hf_github_issues
+Umów demo z hotel chains,outreach,synthetic_pl
+Rozeznanie rynku: the framework,research,synthetic_pl
+Dokumentacja Dockerfile,ops,synthetic_pl
+Schedule demo with investors,outreach,synthetic_en
+h264 video access unit delimeter miss cause exoplayer to get stuck in prepare state,development,hf_github_issues
+Kampania marketingowa na SEO campaign,marketing,synthetic_pl
+Schedule demo with potencjalnych partnerów,outreach,synthetic_en
+Create new onboarding wizard,development,synthetic_en
+Update documentation for API docs,ops,synthetic_en
+language service do not understand index signature in template,support,hf_github_issues
+Przeprojektuj paletę kolorów,design,synthetic_pl
+can t install postgresql driver after clean windows 10 reinstallation,development,hf_github_issues
+go doc document that empty single quote 39 be convert to unicode quote 8221,ops,hf_github_issues
+Analysis of rynku hotelowego,research,synthetic_en
+Handle customer feedback on auth flow,support,synthetic_en
+Research: evaluate konkurencji,research,synthetic_en
+Update documentation for the DB migration,ops,synthetic_en
+Napraw błąd w the calendar,support,synthetic_pl
+Update documentation for ESLint config,ops,synthetic_en
+Prototyp icon set,design,synthetic_pl
+Run promo on Instagram,marketing,synthetic_en
+Investigate modelu cenowego,research,synthetic_en
+performance of helloworld5000 could be improve,development,hf_github_issues
+crash on pico hmd,support,hf_github_issues
+Pitch sprzedażowy dla investors,outreach,synthetic_pl
+add memory usage tracking to orcpagesource,development,hf_github_issues
+Integrate dark mode,development,synthetic_en
+Add task search to the app,development,synthetic_en
+sql enhance error message on filter check against agg,development,hf_github_issues
+Reklama na Instagram,marketing,synthetic_pl
+painless array equality check,development,hf_github_issues
+window custom build executable have no icon,support,hf_github_issues
+Build CSV export,development,synthetic_en
+trait object coercion have problem with contravariant struct and lifetime bound,development,hf_github_issues
+Add panel KPI to the app,development,synthetic_en
+Zaprojektuj task card,design,synthetic_pl
+Wireframe logo,design,synthetic_en
+Run promo on kampanię email,marketing,synthetic_en
+Konfiguracja Dockerfile,ops,synthetic_pl
+add font color for button when focus,development,hf_github_issues
+POC dla the hotel market,research,synthetic_pl
+fix typo in the documentation for autobuffer,ops,hf_github_issues
+e2e fix memory manager test,support,hf_github_issues
+align maven version in system requirement with what be actually test,ops,hf_github_issues
+Przeprojektuj color palette,design,synthetic_pl
+Promocja produktu przez media społecznościowe,marketing,synthetic_pl
+Prototyp Figma prototype,design,synthetic_pl
+Launch email campaign campaign,marketing,synthetic_en
+core spring interface declare with java 8 default method and functionalinterface marker spr 14432,development,hf_github_issues
+Upgrade dependencies,ops,synthetic_en
+Setup Next.js do v15,ops,synthetic_en
+Email campaign for 20 hotels,marketing,synthetic_en
+jump link render wrong on small screen,support,hf_github_issues
+Growth: acquire hotel chains,outreach,synthetic_en
+404 page and similar should have relpermalink permalink,development,hf_github_issues
+register thymeleaf s java8timedialect by default if on the classpath,development,hf_github_issues
+Configure ESLint config,ops,synthetic_en
+Rozeznanie rynku: PM tools,research,synthetic_pl
+Analysis of performance,research,synthetic_en
+Zgłoszenie klienta dotyczące sprint board,support,synthetic_pl
+Makieta: task card,design,synthetic_pl
+add connectiondetail and serviceconnection support to pulsar,development,hf_github_issues
+Schedule demo with early adopters,outreach,synthetic_en
+Launch kampanię SEO campaign,marketing,synthetic_en
+Przeprojektuj Figma prototype,design,synthetic_pl
+Optymalizacja SEO dla newsletter,marketing,synthetic_pl
+Zaprojektuj typografię,design,synthetic_pl
+assert eq x y doesn t coerce as well as assert x y do,development,hf_github_issues
+oauth 2 configuration example use unrecognized value for authorization grant type,ops,hf_github_issues
+revert forbid implicit type conversion in gdscript,support,hf_github_issues
+Wdróż task search,development,synthetic_pl
+change in behavior in how diagnostic squiggle be show between v1 61 and 1 62,support,hf_github_issues
+Partnership outreach: investors,outreach,synthetic_en
+Fix bug in login,support,synthetic_en
+Napraw błąd w sprint board,support,synthetic_pl
+can I safely change the type of flush disk,support,hf_github_issues
+window fix gcc mingw warning,development,hf_github_issues
+bugfix fix rm channel get npe when resourceid be empty,support,hf_github_issues
+Cold outreach to investors,outreach,synthetic_en
+ground unit not pathfinde to a command center,support,hf_github_issues
+Configure migrację bazy,ops,synthetic_en
+chop off trail content in one multioutput setup,support,hf_github_issues
+Partnerstwo: 20 hotels,outreach,synthetic_pl
+Investigate frameworka,research,synthetic_en
+POC dla rynku hotelowego,research,synthetic_pl
+Build onboarding wizard,development,synthetic_en
+SEO optimization for kampanię SEO,marketing,synthetic_en
+Create new filtr backlogu,development,synthetic_en
+Analiza performance,research,synthetic_pl
+Nowa funkcja: email digest,development,synthetic_pl
+Sales pitch for early adopters,outreach,synthetic_en
+Przeprojektuj landing page,design,synthetic_pl
+Pitch sprzedażowy dla potential partners,outreach,synthetic_pl
+Build Gantt view,development,synthetic_en
+Błąd w obszarze the editor,support,synthetic_pl
+code sample in develop your first spring boot application do not work,ops,hf_github_issues
+Reklama na kampanię SEO,marketing,synthetic_pl
+Prepare press release about backlog filter,marketing,synthetic_en
+Zaimplementuj eksport CSV,development,synthetic_pl
+Design typography,design,synthetic_en
+caffeine license,ops,hf_github_issues
+Write blog post about wydajności,marketing,synthetic_en
+bug typescript fetch name convention of generate request type be different from spec file,support,hf_github_issues
+Redesign kartę zadania,design,synthetic_en
+automate cherry pick of 57265 by default block service proxy to external ip address,support,hf_github_issues
+Zbuduj panel KPI,development,synthetic_pl
+improve documentation for imread unchanged flag,ops,hf_github_issues
+Create mockup for makietę dashboardu,design,synthetic_en
+check whether the charsequence have letter character,development,hf_github_issues
+Reklama na SEO campaign,marketing,synthetic_pl
+Pozyskanie potencjalnych partnerów,outreach,synthetic_pl
+Kampania marketingowa na LinkedIn,marketing,synthetic_pl
+imgcodec add volatile due to setjmp comment,ops,hf_github_issues
+Cold mailing do sieci hotelowe,outreach,synthetic_pl
+Cold mailing do 20 hoteli,outreach,synthetic_pl
+powertoy vs greenshot,support,hf_github_issues
+remove entry for oci starter as it be no long maintain,ops,hf_github_issues
+documentation on cc library include be wrong,ops,hf_github_issues
+Write blog post about performance,marketing,synthetic_en
+Create new dashboard KPI,development,synthetic_en
+asset library image aren t be load due to https,support,hf_github_issues
+Kampania email do 20 hotels,marketing,synthetic_pl
+POC dla the pricing model,research,synthetic_pl
+default font be vertically offset on some linux distribution,support,hf_github_issues
+Refactor sprint board code,ops,synthetic_en
+Umów demo z klientów enterprise,outreach,synthetic_pl
+Prepare press release about task search,marketing,synthetic_en
+Wdrożenie dokumentację API,ops,synthetic_pl
+doesn t the late exoplayer even try to play if it go beyond the spec define on the device,support,hf_github_issues
+doc physic 2d directbodystate update,ops,hf_github_issues
+Rozwiąż problem z the calendar,support,synthetic_pl
+doc minor change chaiscript to mockascript,ops,hf_github_issues
+3 4 1 break backward compatibility for user of readonlyarray,support,hf_github_issues
+Analiza narzędzi PM,research,synthetic_pl
+Research: evaluate performance,research,synthetic_en
+extend the tutorial change the contrast and brightness of an image,ops,hf_github_issues
+Napisz artykuł na X (Twitter),marketing,synthetic_pl
+Optymalizacja SEO dla kampanię SEO,marketing,synthetic_pl
+Schedule demo with sieci hotelowe,outreach,synthetic_en
+Email campaign for hotel chains,marketing,synthetic_en
+fix duplicate word in comment,ops,hf_github_issues
+fancyzone do not respond on virtual desktop 2 3 until recreate,support,hf_github_issues
+Aktualizacja the DB migration,ops,synthetic_pl
+Hotfix: zepsute pagination,support,synthetic_pl
+Investigate narzędzi PM,research,synthetic_en
+Dodaj filtr backlogu,development,synthetic_pl
+Zbadaj rynku hotelowego,research,synthetic_pl
+Reklama na blog,marketing,synthetic_pl
+fix problem where kubectl apply stop after first error,support,hf_github_issues
+Analysis of narzędzi PM,research,synthetic_en
+Setup CI/CD pipeline,ops,synthetic_en
+Launch X (Twitter) campaign,marketing,synthetic_en
+inherit scene don t receive base name change lose local resource,support,hf_github_issues
+Kampania email do sieci hotelowe,marketing,synthetic_pl
+Wdróż wyszukiwarkę zadań,development,synthetic_pl
+Redesign makietę dashboardu,design,synthetic_en
+implement llm stream api of alibaba tongyi model,development,hf_github_issues
+Build kreator onboardingu,development,synthetic_en
+Napisz artykuł na LinkedIn,marketing,synthetic_pl
+Integrate CSV export,development,synthetic_en
+Analysis of API dostawców,research,synthetic_en
+tag throw error since alpha 48 d388c0a,support,hf_github_issues
+Dokumentacja deploy na Netlify,ops,synthetic_pl
+Wireframe paletę kolorów,design,synthetic_en
+Error in sprint board reported by user,support,synthetic_en
+Create new wyszukiwarkę zadań,development,synthetic_en
+Redesign system ikon,design,synthetic_en
+Grafika i layout dla system ikon,design,synthetic_pl
+Email campaign for 20 hoteli,marketing,synthetic_en
+Przygotuj newsletter o task search,marketing,synthetic_pl
+Zbuduj filtr backlogu,development,synthetic_pl
+Partnership outreach: potential partners,outreach,synthetic_en
+update mvnw to late version,ops,hf_github_issues
+Prototyp landing page,design,synthetic_pl
+require acknowledgement to start trial license,support,hf_github_issues
+Analiza rynku hotelowego,research,synthetic_pl
+text extractor,support,hf_github_issues
+Wdróż CSV export,development,synthetic_pl
+Grafika i layout dla color palette,design,synthetic_pl
+add opentelemetry as new source for log,ops,hf_github_issues
+Konfiguracja dokumentację API,ops,synthetic_pl
+Pozyskanie hotel chains,outreach,synthetic_pl
+devtool documentation incorrectly use compileonly gradle scope,ops,hf_github_issues
+Create new email digest,development,synthetic_en
+Dodaj eksport CSV,development,synthetic_pl
+an extension spamme console log will take a lot of cpu time in the render process,support,hf_github_issues
+texturerect fail to tile when subviewport node in the same tree,support,hf_github_issues
+Wireframe kartę zadania,design,synthetic_en
+allow seamless switching between different audio track e g in mkv,development,hf_github_issues
+allow binary sort value,development,hf_github_issues
+Spike: explore bezpieczeństwa,research,synthetic_en
+Zaimplementuj kreator onboardingu,development,synthetic_pl
+Error in edytora reported by user,support,synthetic_en
+Upgrade deploy na Netlify,ops,synthetic_en
+issue 11618 add the config of max thread count for client worker name polling,development,hf_github_issues
+Upgrade Dockerfile,ops,synthetic_en
+doc be inconsistent about support for os x sandboxe,ops,hf_github_issues
+doc clarify middleware file name when use custom page extension,ops,hf_github_issues
+add an example on iterate an array backwards,ops,hf_github_issues
+Plan marketing campaign on Instagram,marketing,synthetic_en
+Reklama na kampanię email,marketing,synthetic_pl
+support for 32 bit image thumbnail in the file explorer exr hdr etc,development,hf_github_issues
+refactor move flake8 config,development,hf_github_issues
+remove use of vformat with no placeholder,development,hf_github_issues
+new constraint loose field number on uncheck,support,hf_github_issues
+Pitch sprzedażowy dla sieci hotelowe,outreach,synthetic_pl
+fix anchor rewrite contain a question mark,ops,hf_github_issues
+SEO optimization for LinkedIn,marketing,synthetic_en
+fix package doc so it show up on godoc org,ops,hf_github_issues
+Configure CI/CD pipeline,ops,synthetic_en
+Launch LinkedIn campaign,marketing,synthetic_en
+Cold outreach to klientów enterprise,outreach,synthetic_en
+Write blog post about modelu cenowego,marketing,synthetic_en
+Promocja produktu przez SEO campaign,marketing,synthetic_pl
+Zbadaj PM tools,research,synthetic_pl
+e0283 could be well for call to associate function on the trait itself,development,hf_github_issues
+Implement powiadomienia email,development,synthetic_en
+Configure zależności,ops,synthetic_en
+style add option definition for makestyle,support,hf_github_issues
+rfc doc more vi diff txt cleanup,ops,hf_github_issues
+paste value from different cell,development,hf_github_issues
+Analiza bezpieczeństwa,research,synthetic_pl
+Prototyp stronę docelową,design,synthetic_pl
+Pozyskanie wczesnych użytkowników,outreach,synthetic_pl
+Create mockup for task card,design,synthetic_en
+Schedule demo with klientów enterprise,outreach,synthetic_en
+Run promo on newsletter,marketing,synthetic_en
+Aktualizacja ESLint config,ops,synthetic_pl
+doc point to gdscript in gdscript script impl,ops,hf_github_issues
+Zaprojektuj kartę zadania,design,synthetic_pl
+Kampania marketingowa na social media,marketing,synthetic_pl
+Email campaign for potential partners,marketing,synthetic_en
+xrcontroller do not track in project create in alpha 15,support,hf_github_issues
+Dodaj CSV export,development,synthetic_pl
+document the order attribute of the element spr 3061,ops,hf_github_issues
+Rozwiąż problem z edytora,support,synthetic_pl
+POC dla the framework,research,synthetic_pl
+Napisz artykuł na social media,marketing,synthetic_pl
+Reklama na media społecznościowe,marketing,synthetic_pl
+bug java spring webclient webclient metric contain actual query parameter result in oom,support,hf_github_issues
+Rozwiąż problem z sprint board,support,synthetic_pl
+Spike: explore konkurencji,research,synthetic_en
+adjust configuration guide to reflect change to startup behaviour optimize instead of auto build,development,hf_github_issues
+Investigate konkurencji,research,synthetic_en
+Create mockup for icon set,design,synthetic_en
+Audit PM tools,research,synthetic_en
+Dokumentacja ESLint config,ops,synthetic_pl
+encode json please document that float inf inf nan will cause json marshal return error,ops,hf_github_issues
+Audit security posture,research,synthetic_en
+Run promo on SEO campaign,marketing,synthetic_en
+limit module in the aggregated javadoc to those that we expect an application to depend upon,ops,hf_github_issues
+Zbadaj performance,research,synthetic_pl
+Partnerstwo: sieci hotelowe,outreach,synthetic_pl
+be there any way to use stepbycount like avplayer on io,support,hf_github_issues
+transform add the ability to delete document from the destination index,development,hf_github_issues
+Schedule demo with 20 hotels,outreach,synthetic_en
+Kampania marketingowa na kampanię SEO,marketing,synthetic_pl
+chore doc complement the addon api doc,ops,hf_github_issues
+Add eksport CSV to the app,development,synthetic_en
+Error in formularza reported by user,support,synthetic_en
+Pitch sprzedażowy dla hotel chains,outreach,synthetic_pl
+Cold outreach to inwestorów,outreach,synthetic_en
+smartinitializingsingleton bean be not work with lazy initialization,support,hf_github_issues
+Setup README,ops,synthetic_en
+win t let I hit play with the following error,support,hf_github_issues
+Zaimplementuj dashboard KPI,development,synthetic_pl
+Design prototyp w Figmie,design,synthetic_en
+Setup the DB migration,ops,synthetic_en
+package do not get transpile in jest like react markdown,support,hf_github_issues
+Setup Netlify deploy,ops,synthetic_en
+net http document that setcookie can quote the value,ops,hf_github_issues
+Fix bug in formularza,support,synthetic_en
+Nowa funkcja: powiadomienia email,development,synthetic_pl
+Konfiguracja README,ops,synthetic_pl
+chore doc additional vue ts snippet,ops,hf_github_issues
+bug fix kotlin generator doesn t support inheritance,development,hf_github_issues
+Przeprojektuj typografię,design,synthetic_pl
+Integrate onboarding wizard,development,synthetic_en
+the nologo argument to powershell do not work,support,hf_github_issues
+Plan marketing campaign on social media,marketing,synthetic_en
+Wdróż eksport CSV,development,synthetic_pl
+Aktualizacja zależności,ops,synthetic_pl
+Prototype typografię in Figma,design,synthetic_en
+Zaimplementuj dark mode,development,synthetic_pl
+ffmpeg isn t load from the package directory sometimes,support,hf_github_issues
+Wdrożenie API docs,ops,synthetic_pl
+Przygotuj newsletter o backlog filter,marketing,synthetic_pl
+Zbadaj third-party APIs,research,synthetic_pl
+Optymalizacja SEO dla LinkedIn,marketing,synthetic_pl
+Email campaign for wczesnych użytkowników,marketing,synthetic_en
+rename the editor set for the minimap,development,hf_github_issues
+Analiza the framework,research,synthetic_pl
+add note in documentation for spring cli,ops,hf_github_issues
+what s new in 4 0 section in reference documentation spr 11120,ops,hf_github_issues
+Implement onboarding wizard,development,synthetic_en
+Configure README,ops,synthetic_en
+reference documentation doesn t mention componentscan at all spr 11846,ops,hf_github_issues
+Create mockup for dashboard mockup,design,synthetic_en
+Badanie bezpieczeństwa przed decyzją,research,synthetic_pl
+Umów demo z early adopters,outreach,synthetic_pl
+Analiza security posture,research,synthetic_pl
+Upgrade konfigurację ESLint,ops,synthetic_en
+dnn fail ocl fp16 test on recent intel gpu,support,hf_github_issues
+Create mockup for color palette,design,synthetic_en
+Dokumentacja CI/CD pipeline,ops,synthetic_pl
+fix doc,ops,hf_github_issues
+Umów demo z investors,outreach,synthetic_pl
+Zbuduj wyszukiwarkę zadań,development,synthetic_pl
+Zbuduj powiadomienia email,development,synthetic_pl
+Kampania email do early adopters,marketing,synthetic_pl
+Run promo on email campaign,marketing,synthetic_en
+Plan marketing campaign on SEO campaign,marketing,synthetic_en
+Zbadaj the hotel market,research,synthetic_pl
+comment classification initially only colorize identifier cause flash,support,hf_github_issues
+icon request fa money alt,development,hf_github_issues
+full editing pass plus link,ops,hf_github_issues
+Prototype prototyp w Figmie in Figma,design,synthetic_en
+Prototype Figma prototype in Figma,design,synthetic_en
+add next font import,ops,hf_github_issues
+remove trail slash from void element in internal template,development,hf_github_issues
+Spike: explore competitor pricing,research,synthetic_en
+Prepare press release about eksport CSV,marketing,synthetic_en
+Resolve crash in paginacji,support,synthetic_en
+Integrate backlog filter,development,synthetic_en
+Wireframe prototyp w Figmie,design,synthetic_en
+more native text object for common scenario,development,hf_github_issues
+fix doc infra add guard to not render anchor link for private api,support,hf_github_issues
+Makieta: Figma prototype,design,synthetic_pl
+flink 9664 doc fix documentation in ml quick start,ops,hf_github_issues
+search optimisation add canmatch early abort for query on index field,development,hf_github_issues
+Dodaj onboarding wizard,development,synthetic_pl
+5 4 0 modal afteropenchange typescript,support,hf_github_issues
+Handle customer feedback on logowania,support,synthetic_en
+show jvm argument,development,hf_github_issues
+Błąd w obszarze edytora,support,synthetic_pl
+Analiza competitor pricing,research,synthetic_pl
+Fix bug in realtime,support,synthetic_en
+Wdróż dashboard KPI,development,synthetic_pl
+Design kartę zadania,design,synthetic_en
+Audit modelu cenowego,research,synthetic_en
+Dodaj dark mode,development,synthetic_pl
+enhancement request access to diagnostic equivalent via the api,support,hf_github_issues
+Dokumentacja dokumentację API,ops,synthetic_pl
+move async task maintenance service to core plugin,development,hf_github_issues
+Resolve crash in sprint board,support,synthetic_en
+Error in tablicy sprintu reported by user,support,synthetic_en
+api ilm explain add stat for time since index rollover,development,hf_github_issues
+when instal globally tsc should check for node module bin tsc,support,hf_github_issues
+Zbadaj API dostawców,research,synthetic_pl
+Umów demo z enterprise leads,outreach,synthetic_pl
+Update documentation for Netlify deploy,ops,synthetic_en
+Zaimplementuj onboarding wizard,development,synthetic_pl
+update 10 parallel route mdx,ops,hf_github_issues
+move group leave right doesn t do anything in a couple case,support,hf_github_issues
+Email campaign for enterprise leads,marketing,synthetic_en
+page up page down in git commit text box scroll entire page,support,hf_github_issues
+Makieta: prototyp w Figmie,design,synthetic_pl
+Napraw błąd w edytora,support,synthetic_pl
+Audit the pricing model,research,synthetic_en
+cli add bash completion script and install with homebrew,development,hf_github_issues
+Setup deploy na Netlify,ops,synthetic_en
+Redesign typography,design,synthetic_en
+Integrate wyszukiwarkę zadań,development,synthetic_en
+Analiza API dostawców,research,synthetic_pl
+Zaprojektuj makietę dashboardu,design,synthetic_pl
+Configure dokumentację API,ops,synthetic_en
+SEO optimization for media społecznościowe,marketing,synthetic_en
+Partnerstwo: hotel chains,outreach,synthetic_pl
+Cold outreach to early adopters,outreach,synthetic_en
+Hotfix: formularza is broken,support,synthetic_en
+need a solution for loading out of tree module source,development,hf_github_issues
+Resolve crash in autoryzacji,support,synthetic_en
+rename a script file doesn t auto update the name everywhere,support,hf_github_issues
+storybook for angular page describe incorrect configuration,support,hf_github_issues
+node add boolnode and uintnode,development,hf_github_issues
+Research: evaluate API dostawców,research,synthetic_en
+Rozwiąż problem z pagination,support,synthetic_pl
+Spike: explore the pricing model,research,synthetic_en
+improve custom server documentation,ops,hf_github_issues
+can not attach writable persistent disk to daemonset with single pod,support,hf_github_issues
+Email campaign for sieci hotelowe,marketing,synthetic_en
+Implement widok Gantt,development,synthetic_en
+Plan marketing campaign on blog,marketing,synthetic_en
+Build wyszukiwarkę zadań,development,synthetic_en
+update documentation photo hpp,ops,hf_github_issues
+Handle customer feedback on kalendarza,support,synthetic_en
+Spike: explore the hotel market,research,synthetic_en
+changelog of 8 1 0 release,ops,hf_github_issues
+Update documentation for deploy na Netlify,ops,synthetic_en
+Dodaj kreator onboardingu,development,synthetic_pl
+Napraw błąd w tablicy sprintu,support,synthetic_pl
+Analysis of konkurencji,research,synthetic_en
+Prototype paletę kolorów in Figma,design,synthetic_en
+Cold mailing do inwestorów,outreach,synthetic_pl
+move grok pattern load out of grokprocessorfactory,development,hf_github_issues
+Umów demo z 20 hoteli,outreach,synthetic_pl
+SEO optimization for kampanię email,marketing,synthetic_en
+Badanie narzędzi PM przed decyzją,research,synthetic_pl
+enhance window segment parser,development,hf_github_issues
+Add CSV export to the app,development,synthetic_en
+add source fallback support for unsigned long mapped type,development,hf_github_issues
+Integrate task search,development,synthetic_en
+Hotfix: zepsute the calendar,support,synthetic_pl
+Analysis of bezpieczeństwa,research,synthetic_en
+contextloader should rethrow assertionerror as be,development,hf_github_issues
+Analysis of wydajności,research,synthetic_en
+Prepare press release about email digest,marketing,synthetic_en
+Partnerstwo: enterprise leads,outreach,synthetic_pl
+storysource add instruction to display full source,ops,hf_github_issues
+Create mockup for typografię,design,synthetic_en
+init kubelet runtime cache before dependent stat provider,support,hf_github_issues
+document scenetreetimer be free automatically when elapse,ops,hf_github_issues
+bug doc update link to test library user event page,ops,hf_github_issues
+Redesign task card,design,synthetic_en
+Design Figma prototype,design,synthetic_en
+Napraw błąd w login,support,synthetic_pl
+Resolve crash in realtime,support,synthetic_en
+Promocja produktu przez kampanię email,marketing,synthetic_pl
+apache drill jdbc url need,support,hf_github_issues
+Cold mailing do potential partners,outreach,synthetic_pl
+update oal md,ops,hf_github_issues
+tooltip fix classname not get apply from popperprop,support,hf_github_issues
+Aktualizacja migrację bazy,ops,synthetic_pl
+the width of the terminal can overflow out of the panel for monospace font,support,hf_github_issues
+be there a place on the admin ui to see when be the last time the event entity table be clean,development,hf_github_issues
+Sales pitch for investors,outreach,synthetic_en
+doc what be the proper way to build with next public env var in docker,ops,hf_github_issues
+script api for window manager,development,hf_github_issues
+Reklama na social media,marketing,synthetic_pl
+Partnership outreach: potencjalnych partnerów,outreach,synthetic_en
+doc redirect the blog post about form to the form guide,ops,hf_github_issues
+Growth: acquire 20 hoteli,outreach,synthetic_en
+add miss curly brace for action property in the button story example,ops,hf_github_issues
+add signalfxconfig source property,development,hf_github_issues
+Reklama na newsletter,marketing,synthetic_pl
+Rozwiąż problem z logowania,support,synthetic_pl
+Partnership outreach: enterprise leads,outreach,synthetic_en
+bazel rule node js 3 7 0 npm install not create bin folder under node module,support,hf_github_issues
+Error in auth flow reported by user,support,synthetic_en
+make filterregistrationbean generic,development,hf_github_issues
+paste as plain text retain original clipboard content,development,hf_github_issues
+Prototyp typografię,design,synthetic_pl
+Wdróż widok Gantt,development,synthetic_pl
+Build task search,development,synthetic_en
+Prototype typography in Figma,design,synthetic_en
+Dodaj dashboard KPI,development,synthetic_pl
+Sales pitch for sieci hotelowe,outreach,synthetic_en
+automate cherry pick of 81720 fix azure disk name matching issue,support,hf_github_issues
+Optymalizacja SEO dla blog,marketing,synthetic_pl
+php code syntax highlighting do not work in markdown file,support,hf_github_issues
+Partnership outreach: early adopters,outreach,synthetic_en
+Promocja produktu przez blog,marketing,synthetic_pl
+Growth: acquire investors,outreach,synthetic_en
+Rozwiąż problem z paginacji,support,synthetic_pl
+Refactor kalendarza code,ops,synthetic_en
+allow scrollcontainer to be click for focus and border,development,hf_github_issues
+Refaktoryzacja autoryzacji,ops,synthetic_pl
+add a restart a stop or fail job section to the batch howto,ops,hf_github_issues
+POC dla PM tools,research,synthetic_pl
+Wdróż powiadomienia email,development,synthetic_pl
+Hotfix: logowania is broken,support,synthetic_en
+Hotfix: kalendarza is broken,support,synthetic_en
+Zaprojektuj stronę docelową,design,synthetic_pl
+Prototype stronę docelową in Figma,design,synthetic_en
+remove yaml shortcoming section as it no long apply,ops,hf_github_issues
+Cold outreach to 20 hoteli,outreach,synthetic_en
+Refactor formularza code,ops,synthetic_en
+Wdrożenie deploy na Netlify,ops,synthetic_pl
+Handle customer feedback on realtime,support,synthetic_en
+dropdown contextmenu,support,hf_github_issues
+Przygotuj newsletter o dark mode,marketing,synthetic_pl
+Napraw błąd w realtime,support,synthetic_pl
+tip of the day overview,development,hf_github_issues
+python3 issue with keras custom layer,support,hf_github_issues
+Research: evaluate competitor pricing,research,synthetic_en
+Cold outreach to wczesnych użytkowników,outreach,synthetic_en
+Growth: acquire inwestorów,outreach,synthetic_en
+Błąd w obszarze realtime,support,synthetic_pl
+Design landing page,design,synthetic_en
+Investigate bezpieczeństwa,research,synthetic_en
+Przygotuj newsletter o onboarding wizard,marketing,synthetic_pl
+no result fetch when I close statement in dbeaver 21 3 4,support,hf_github_issues
+Zgłoszenie klienta dotyczące edytora,support,synthetic_pl
+Write blog post about the pricing model,marketing,synthetic_en
+add zhaopin com power by md,ops,hf_github_issues
+Refaktoryzacja sprint board,ops,synthetic_pl
+Wireframe makietę dashboardu,design,synthetic_en
+Badanie the pricing model przed decyzją,research,synthetic_pl
+in gradle plugin doc replace classifier deprecate with archiveclassifier in example,ops,hf_github_issues
+Update documentation for Next.js do v15,ops,synthetic_en
+videocapture do not work with video for window backend,support,hf_github_issues
+Investigate third-party APIs,research,synthetic_en
+Growth: acquire klientów enterprise,outreach,synthetic_en
+Refactor login code,ops,synthetic_en
+Napisz artykuł na blog,marketing,synthetic_pl
+Błąd w obszarze the calendar,support,synthetic_pl
+Cold mailing do wczesnych użytkowników,outreach,synthetic_pl
+Pitch sprzedażowy dla potencjalnych partnerów,outreach,synthetic_pl
+not get where code be go wrong with drmseesion,support,hf_github_issues
+Badanie third-party APIs przed decyzją,research,synthetic_pl
+Wireframe icon set,design,synthetic_en
+flink 9871 use description class for configoption with rich format,ops,hf_github_issues
+memory leak,support,hf_github_issues
+Optymalizacja SEO dla SEO campaign,marketing,synthetic_pl
+Refaktoryzacja auth flow,ops,synthetic_pl
+Refactor the calendar code,ops,synthetic_en
+Błąd w obszarze kalendarza,support,synthetic_pl
+Wireframe typography,design,synthetic_en
+ml migrate unallocated job and datafeed,development,hf_github_issues
+deprecate webpack 4 support,ops,hf_github_issues
+cvcapture ffmpeg setproperty cap prop pos set picture pt inconsistently,support,hf_github_issues
+Prototyp color palette,design,synthetic_pl
+Wdrożenie zależności,ops,synthetic_pl
+feature request clear coat tint and thickness,development,hf_github_issues
+Fix bug in pagination,support,synthetic_en
+call gettoplevelgroup be slow inside groupldapstoragemapper getldapgroupmappingsconverte,development,hf_github_issues
+Napisz artykuł na kampanię email,marketing,synthetic_pl
+flink 3043 doc fix description of kafka consumer and producer,ops,hf_github_issues
+Audit the framework,research,synthetic_en
+remove metaweather url be not valid,development,hf_github_issues
+Cold mailing do potencjalnych partnerów,outreach,synthetic_pl
+docs treesitter split codeblock,ops,hf_github_issues
+hidpi support,development,hf_github_issues
+Konfiguracja the DB migration,ops,synthetic_pl
+tilemap add a toggle for collision per layer,development,hf_github_issues
+Email campaign for early adopters,marketing,synthetic_en
+Fix bug in edytora,support,synthetic_en
+Kampania marketingowa na email campaign,marketing,synthetic_pl
+Zbadaj competitor pricing,research,synthetic_pl
+Przygotuj newsletter o tryb ciemny,marketing,synthetic_pl
+Plan marketing campaign on X (Twitter),marketing,synthetic_en
+Refactor realtime code,ops,synthetic_en
+multiple daterange aggregation produce wrong result,support,hf_github_issues
+Pitch sprzedażowy dla 20 hoteli,outreach,synthetic_pl
+Plan marketing campaign on media społecznościowe,marketing,synthetic_en
+use domrenderer,support,hf_github_issues
+Upgrade CI/CD pipeline,ops,synthetic_en
+Handle customer feedback on formularza,support,synthetic_en
+Fix bug in logowania,support,synthetic_en
+mention correct junit 5 annotation in kotlin testing section,ops,hf_github_issues
+well user experience when attempt to call associate function with dot notation,development,hf_github_issues
+gen vimdoc py fix help format reduce mpack format,ops,hf_github_issues
+Pitch sprzedażowy dla enterprise leads,outreach,synthetic_pl
+Partnership outreach: wczesnych użytkowników,outreach,synthetic_en
+fix typo in dynamic config configmap md doc,ops,hf_github_issues
+Zgłoszenie klienta dotyczące autoryzacji,support,synthetic_pl
+Upgrade API docs,ops,synthetic_en
+bazel build problem with contribute break change,ops,hf_github_issues
+enhance inplacepodverticalscale performance,support,hf_github_issues
+Makieta: paletę kolorów,design,synthetic_pl
+Nowa funkcja: wyszukiwarkę zadań,development,synthetic_pl
+fix typo in new experimental relay support doc,ops,hf_github_issues
+add navigation bake crash prevention mechanism,development,hf_github_issues
+Wdrożenie ESLint config,ops,synthetic_pl
+Kampania marketingowa na X (Twitter),marketing,synthetic_pl
+Refaktoryzacja the calendar,ops,synthetic_pl
+make my own abr algorithm in hls,support,hf_github_issues
+next font axis type of open san be miss ital and wght,support,hf_github_issues
+doc remove extra from npm install command,ops,hf_github_issues
+Kampania marketingowa na media społecznościowe,marketing,synthetic_pl
+doc document that sync pool should be use only with pointer type,ops,hf_github_issues
+Hotfix: the editor is broken,support,synthetic_en
+bugfix after 1 6 0 auto increment of pgsql pk column be no long support,support,hf_github_issues
+Dokumentacja konfigurację ESLint,ops,synthetic_pl
+Create mockup for typography,design,synthetic_en
+Cold mailing do 20 hotels,outreach,synthetic_pl
+Redesign stronę docelową,design,synthetic_en
+dropcap bbcode be incorrectly parse internally cause an error message,support,hf_github_issues
+support constructor injection for failureanalyzer,development,hf_github_issues
+cassandra connection use ssh tunnel not connect,support,hf_github_issues
+script can not generate api doc for only one file,support,hf_github_issues
+Create mockup for system ikon,design,synthetic_en
+can not use sb hook useargs in react component render inside decorator or render function,ops,hf_github_issues
+Przeprojektuj dashboard mockup,design,synthetic_pl
+Hotfix: zepsute formularza,support,synthetic_pl
+Napraw błąd w kalendarza,support,synthetic_pl
+Refaktoryzacja realtime,ops,synthetic_pl
+drop support for variable substition for program and runtime in package json,support,hf_github_issues
+method action get event return an array of booleans instead of inputevent,support,hf_github_issues
+fix window build failure in some environment,development,hf_github_issues
+Błąd w obszarze paginacji,support,synthetic_pl
+Hotfix: zepsute the editor,support,synthetic_pl
+Napisz artykuł na SEO campaign,marketing,synthetic_pl
+Create mockup for logo,design,synthetic_en
+Optymalizacja SEO dla media społecznościowe,marketing,synthetic_pl
+Research: evaluate bezpieczeństwa,research,synthetic_en
+Create new eksport CSV,development,synthetic_en
+Cold mailing do early adopters,outreach,synthetic_pl
+Launch Instagram campaign,marketing,synthetic_en
+update buildpack support for lifecycle v6,development,hf_github_issues
+chore doc add section for custom type declaration,ops,hf_github_issues
+Napisz artykuł na kampanię SEO,marketing,synthetic_pl
+update bio nio aio md,development,hf_github_issues
+Launch kampanię email campaign,marketing,synthetic_en
+Add powiadomienia email to the app,development,synthetic_en
+Hotfix: edytora is broken,support,synthetic_en
+Upgrade the DB migration,ops,synthetic_en
+Build widok Gantt,development,synthetic_en
+Rozeznanie rynku: competitor pricing,research,synthetic_pl
+why index signature type should be assignable to all know member,support,hf_github_issues
+Spike: explore PM tools,research,synthetic_en
+Reklama na LinkedIn,marketing,synthetic_pl
+Makieta: typografię,design,synthetic_pl
+Przygotuj newsletter o email digest,marketing,synthetic_pl
+Promocja produktu przez email campaign,marketing,synthetic_pl
+Research: evaluate security posture,research,synthetic_en
+Resolve crash in edytora,support,synthetic_en
+Prototype system ikon in Figma,design,synthetic_en
+hiveserver2 connection failedout,support,hf_github_issues
+cultivator shallow water bonus,support,hf_github_issues
+panic custom error class must have a builder register,support,hf_github_issues
+Resolve crash in login,support,synthetic_en
+Badanie PM tools przed decyzją,research,synthetic_pl
+Zgłoszenie klienta dotyczące pagination,support,synthetic_pl
+Zaprojektuj Figma prototype,design,synthetic_pl
+tabindex on paper while drawer be open cause textfield to become unselectable,support,hf_github_issues
+Umów demo z 20 hotels,outreach,synthetic_pl
+Przeprojektuj system ikon,design,synthetic_pl
+elasticsearch rollup how the roll response and live response combine,development,hf_github_issues
+Pozyskanie investors,outreach,synthetic_pl
+Refactor pagination code,ops,synthetic_en
+Update documentation for Dockerfile,ops,synthetic_en
+Kampania email do potential partners,marketing,synthetic_pl
+add manifest entry to indicate an aot process jar,development,hf_github_issues
+Zaimplementuj panel KPI,development,synthetic_pl
+the web site should use https,development,hf_github_issues
+Kampania email do potencjalnych partnerów,marketing,synthetic_pl
+Grafika i layout dla kartę zadania,design,synthetic_pl
+POC dla modelu cenowego,research,synthetic_pl
+Hotfix: tablicy sprintu is broken,support,synthetic_en
+Audit narzędzi PM,research,synthetic_en
+bytes newbuffer documentation error,ops,hf_github_issues
+incorrect note for lifetime mismatch,development,hf_github_issues
+fix a spelling error,ops,hf_github_issues
+Create new panel KPI,development,synthetic_en
+transform fail checkpoint on miss cluster,support,hf_github_issues
+Zbadaj bezpieczeństwa,research,synthetic_pl
+Prototyp dashboard mockup,design,synthetic_pl
+can not query unmanaged external datum lake table,support,hf_github_issues
+add jersey load on startup configuration property,development,hf_github_issues
+Analiza third-party APIs,research,synthetic_pl
+Analysis of third-party APIs,research,synthetic_en
+Konfiguracja Next.js do v15,ops,synthetic_pl
+Error in paginacji reported by user,support,synthetic_en
+Grafika i layout dla landing page,design,synthetic_pl
+comprehend moderation 0 1,development,hf_github_issues
+Partnerstwo: wczesnych użytkowników,outreach,synthetic_pl
+Resolve crash in pagination,support,synthetic_en
+Sales pitch for wczesnych użytkowników,outreach,synthetic_en
+Przeprojektuj icon set,design,synthetic_pl
+Wdrożenie the DB migration,ops,synthetic_pl
+Audit konkurencji,research,synthetic_en
+fix typo and grammar error,ops,hf_github_issues
+Integrate Gantt view,development,synthetic_en
+fix crash after click on meshinstance with no owner,support,hf_github_issues
+update issue template md,ops,hf_github_issues
+Add email digest to the app,development,synthetic_en
+Partnership outreach: sieci hotelowe,outreach,synthetic_en
+add description to dedent in string xml,ops,hf_github_issues
+Hotfix: pagination is broken,support,synthetic_en
+Error in logowania reported by user,support,synthetic_en
+plugin ambiguous undocumented ldflag pluginpath x,ops,hf_github_issues
+external subtitle for local video,support,hf_github_issues
+Kampania email do 20 hoteli,marketing,synthetic_pl
+confuse incorrect error message with incoherent implementation and async block,development,hf_github_issues
+Launch blog campaign,marketing,synthetic_en
+Napraw błąd w autoryzacji,support,synthetic_pl
+Grafika i layout dla typografię,design,synthetic_pl
+Hotfix: zepsute the form,support,synthetic_pl
+flink 28138 add metric for speculative execution,ops,hf_github_issues
+Write blog post about third-party APIs,marketing,synthetic_en
+Napisz artykuł na newsletter,marketing,synthetic_pl
+Zbuduj backlog filter,development,synthetic_pl
+Wdrożenie Dockerfile,ops,synthetic_pl
+Nowa funkcja: dashboard KPI,development,synthetic_pl
+Zgłoszenie klienta dotyczące the calendar,support,synthetic_pl
+POC dla competitor pricing,research,synthetic_pl
+Upgrade Netlify deploy,ops,synthetic_en
+Zgłoszenie klienta dotyczące kalendarza,support,synthetic_pl
+addon design asset update doc,ops,hf_github_issues
+Design system ikon,design,synthetic_en
+doc clarify some chdir relate behavior,ops,hf_github_issues
+Schedule demo with enterprise leads,outreach,synthetic_en
+maven plugin doc contain invalid parameter for image building,ops,hf_github_issues
+Przeprojektuj typography,design,synthetic_pl
+include spring profile group in additional spring configuration metadata json,ops,hf_github_issues
+loop thread yield now cause 100 cpu usage,development,hf_github_issues
+hutool dfa,development,hf_github_issues
+Konfiguracja API docs,ops,synthetic_pl
+Badanie performance przed decyzją,research,synthetic_pl
+servletcontextinitializerbean can t handle scopedtarget bean correctly,support,hf_github_issues
+Cold mailing do klientów enterprise,outreach,synthetic_pl
+Wireframe system ikon,design,synthetic_en
+Email campaign for investors,marketing,synthetic_en
+Badanie the framework przed decyzją,research,synthetic_pl
+outputfixingparser raise unhandled exception while wrap xmloutputparser,support,hf_github_issues
+generic callstack format customization use regex pattern substitution,support,hf_github_issues
+Implement eksport CSV,development,synthetic_en
+Dokumentacja API docs,ops,synthetic_pl
+Add widok Gantt to the app,development,synthetic_en
+Integrate tryb ciemny,development,synthetic_en
+Makieta: logo,design,synthetic_pl
+chore update next image doc with unoptimized example,ops,hf_github_issues
+Pozyskanie klientów enterprise,outreach,synthetic_pl
+Rozwiąż problem z the editor,support,synthetic_pl
+tweak help menu icon for well visibility of commonly use item,development,hf_github_issues
+Dokumentacja Next.js do v15,ops,synthetic_pl
+Refactor tablicy sprintu code,ops,synthetic_en
+Konfiguracja deploy na Netlify,ops,synthetic_pl
+Zaprojektuj system ikon,design,synthetic_pl
+Makieta: stronę docelową,design,synthetic_pl
+Refactor paginacji code,ops,synthetic_en
+Prepare press release about onboarding wizard,marketing,synthetic_en
+miss icon in pro version 5 1 0 2,support,hf_github_issues
+Prototyp logo,design,synthetic_pl
+Aktualizacja dokumentację API,ops,synthetic_pl
+SEO optimization for social media,marketing,synthetic_en
+Create new backlog filter,development,synthetic_en
+Wireframe color palette,design,synthetic_en
+Upgrade dokumentację API,ops,synthetic_en
+Zaimplementuj CSV export,development,synthetic_pl
+refactor editor extract py,support,hf_github_issues
+Refaktoryzacja pagination,ops,synthetic_pl
+Audit performance,research,synthetic_en
+Design color palette,design,synthetic_en
+add imagekit loader for image optimization 18408,ops,hf_github_issues
+Optymalizacja SEO dla email campaign,marketing,synthetic_pl
+recognise numpad alternate key for remappe to allow to a macropad under the numpad,development,hf_github_issues
+Handle customer feedback on login,support,synthetic_en
+Promocja produktu przez kampanię SEO,marketing,synthetic_pl
+Refaktoryzacja logowania,ops,synthetic_pl
+change goto line to use ctrl g and support column as well,development,hf_github_issues
+Makieta: icon set,design,synthetic_pl
+enable configuration cache feature preview,development,hf_github_issues
+document kafka metric support,ops,hf_github_issues

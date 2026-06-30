@@ -17,6 +17,7 @@ import {
   Users,
   FlaskConical,
   Settings2,
+  ListOrdered,
 } from 'lucide-react'
 
 interface NavItem {
@@ -45,6 +46,7 @@ const navGroups: NavGroup[] = [
     items: [
       { href: '/ideas',      label: 'Pomysły',   icon: Lightbulb },
       { href: '/goals',      label: 'Cele & OKR', icon: Target },
+      { href: '/wsjf',       label: 'WSJF',       icon: ListOrdered },
     ],
   },
   {

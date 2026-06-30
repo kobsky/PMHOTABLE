@@ -12,12 +12,18 @@ import { Settings2 } from 'lucide-react'
 export const metadata: Metadata = { title: 'Zespół' }
 
 export default async function TeamPage() {
-  const [profiles, allTasks, { suggestions }, activeCycle] = await Promise.all([
+  // PERF-004: fetch profiles + tasks once here, then hand the already-fetched
+  // rows to getWorkloadSuggestions() instead of letting it re-query the DB.
+  const [profiles, allTasks, activeCycle] = await Promise.all([
     getProfiles(),
     getAllTasksWithRelations(),
-    getWorkloadSuggestions(),
     getActiveCycle(),
   ])
+
+  // Decision-support workload balancing computed over the rows already loaded
+  // above (no second round-trip). DbUser[] / TaskWithRelations[] satisfy the
+  // ProfileLike / TaskLike structural shapes the action accepts.
+  const { suggestions, imbalance } = await getWorkloadSuggestions(profiles, allTasks)
 
   return (
     <div className="flex flex-col h-screen">
@@ -32,7 +38,7 @@ export default async function TeamPage() {
         }
       />
       <div className="flex-1 overflow-auto p-6">
-        <WorkloadSuggestionsPanel suggestions={suggestions} />
+        <WorkloadSuggestionsPanel suggestions={suggestions} imbalance={imbalance} />
         <TeamCapacityView
           profiles={profiles}
           allTasks={allTasks}
