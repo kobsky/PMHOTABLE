@@ -1,5 +1,6 @@
 import { createServerClient, type CookieMethodsServer } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Zwraca null jeśli brak kluczy (tryb dev bez Supabase)
@@ -31,10 +32,10 @@ export async function createClient() {
 
 // Zwraca klienta + userId tylko gdy użytkownik jest zalogowany.
 // Gdy brak kluczy LUB brak sesji → null (fallback na mock we wszystkich actions).
-export async function getAuthenticatedClient(): Promise<{
+export const getAuthenticatedClient = cache(async (): Promise<{
   supabase: SupabaseClient
   userId: string
-} | null> {
+} | null> => {
   const supabase = await createClient()
   if (!supabase) return null
 
@@ -42,4 +43,4 @@ export async function getAuthenticatedClient(): Promise<{
   if (!user) return null
 
   return { supabase, userId: user.id }
-}
+})

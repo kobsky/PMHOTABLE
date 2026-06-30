@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { PageHeader } from '@/components/compass/page-header'
 import { IdeasView } from '@/components/compass/ideas-view'
 import { getIdeas } from '@/app/actions/ideas'
-import { getProjects } from '@/app/actions/tasks'
+import { getProjects } from '@/app/actions/projects'
 
 export const metadata: Metadata = { title: 'Pomysły' }
 

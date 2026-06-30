@@ -16,7 +16,7 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }
 vi.mock('@/lib/supabase/server', () => ({ getAuthenticatedClient: vi.fn() }))
 
 import { getAuthenticatedClient } from '@/lib/supabase/server'
-import { getAssigneeRecommendation, getWorkloadSuggestions } from '@/app/actions/ai'
+import { getAssigneeRecommendation, getWorkloadSuggestions, bulkCategorizeTaskTypes } from '@/app/actions/ai'
 
 // ---------------------------------------------------------------------------
 // Supabase mock: a thenable chain whose terminal value depends on the table.
@@ -244,5 +244,86 @@ describe('getWorkloadSuggestions (U4)', () => {
     expect(res.loadMap).toEqual({})
     expect(res.imbalance).toEqual({ gini: 0, variance: 0, maxLoad: 0, minLoad: 0 })
     expect(res.error).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// bulkCategorizeTaskTypes (PERF-008) — single batch upsert, auth-guarded.
+//
+// Uses the REAL inferTaskType heuristic (not mocked) to decide which tasks
+// change type; asserts the persisted writes happen in ONE upsert, mirroring
+// the reorderSubtasks / reorderColumn batch pattern.
+// ---------------------------------------------------------------------------
+describe('bulkCategorizeTaskTypes (PERF-008)', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  // A chain that captures upsert + resolves to the given terminal result.
+  function makeUpsertChain(result: { error?: unknown } = {}) {
+    const r = { data: null, error: result.error ?? null }
+    const chain: Record<string, unknown> = {
+      then: (resolve: (v: typeof r) => unknown, reject: (e: unknown) => unknown) =>
+        Promise.resolve(r).then(resolve, reject),
+      catch: (reject: (e: unknown) => unknown) => Promise.resolve(r).catch(reject),
+    }
+    for (const m of ['select', 'eq', 'is', 'upsert']) {
+      chain[m] = vi.fn().mockReturnValue(chain)
+    }
+    return chain
+  }
+
+  function mockAuthUpsert(result: { error?: unknown } = {}) {
+    const chain = makeUpsertChain(result)
+    const from = vi.fn().mockReturnValue(chain)
+    vi.mocked(getAuthenticatedClient).mockResolvedValue({
+      supabase: { from } as never,
+      userId: 'user-test',
+    })
+    return { from, chain }
+  }
+
+  it('returns updated:0 (no throw) when unauthenticated', async () => {
+    mockNoAuth()
+    const res = await bulkCategorizeTaskTypes([
+      { id: 't1', title: 'Fix login crash', currentType: 'development' },
+    ])
+    expect(res).toEqual({ error: null, updated: 0 })
+  })
+
+  it('does not query when no task changes type', async () => {
+    // "Fix login crash" already infers to support → no change for currentType:'support'.
+    const { from } = mockAuthUpsert({ error: null })
+    const res = await bulkCategorizeTaskTypes([
+      { id: 't1', title: 'Fix login crash', currentType: 'support' },
+    ])
+    expect(res).toEqual({ error: null, updated: 0 })
+    expect(from).not.toHaveBeenCalled()
+  })
+
+  it('persists all re-categorizations in ONE batch upsert', async () => {
+    const { from, chain } = mockAuthUpsert({ error: null })
+    const res = await bulkCategorizeTaskTypes([
+      { id: 't1', title: 'Fix login crash', currentType: 'development' }, // → support
+      { id: 't2', title: 'Design new dashboard layout', currentType: 'development' }, // → design
+      { id: 't3', title: 'Team retrospective', currentType: 'development' }, // → null, skipped
+    ])
+    expect(res.error).toBeNull()
+    expect(res.updated).toBe(2)
+    expect(from).toHaveBeenCalledTimes(1)
+    expect(from).toHaveBeenCalledWith('tasks')
+    const upsert = chain.upsert as ReturnType<typeof vi.fn>
+    // Exactly one batch call, not N separate updates.
+    expect(upsert).toHaveBeenCalledTimes(1)
+    expect(upsert).toHaveBeenCalledWith([
+      { id: 't1', type: 'support', ai_suggested: true },
+      { id: 't2', type: 'design', ai_suggested: true },
+    ])
+  })
+
+  it('returns the Supabase error message on upsert failure', async () => {
+    mockAuthUpsert({ error: { message: 'bulk upsert failed' } })
+    const res = await bulkCategorizeTaskTypes([
+      { id: 't1', title: 'Fix login crash', currentType: 'development' },
+    ])
+    expect(res).toEqual({ error: 'bulk upsert failed', updated: 0 })
   })
 })

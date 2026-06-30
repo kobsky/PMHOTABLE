@@ -276,19 +276,42 @@ describe('bulkUpdateTasks', () => {
 })
 
 // ---------------------------------------------------------------------------
-// reorderColumn
+// reorderColumn (PERF-008) — single batch upsert, auth-guarded
 // ---------------------------------------------------------------------------
 describe('reorderColumn', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } for empty array', async () => {
-    mockAuth()
+  it('returns { error: null } for empty array without querying', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
     expect(await reorderColumn([])).toEqual({ error: null })
+    expect(sb.from).not.toHaveBeenCalled()
   })
 
   it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
     expect(await reorderColumn(['t1', 't2'])).toEqual({ error: 'Brak autoryzacji' })
+  })
+
+  it('persists order in ONE batch upsert with position 0..n', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await reorderColumn(['t2', 't0', 't1'])
+    expect(result.error).toBeNull()
+    const chain = sb.from.mock.results[0].value as ReturnType<typeof makeChain>
+    const upsert = chain.upsert as ReturnType<typeof vi.fn>
+    // Exactly one batch call, not N separate updates.
+    expect(upsert).toHaveBeenCalledTimes(1)
+    expect(upsert).toHaveBeenCalledWith([
+      { id: 't2', position: 0 },
+      { id: 't0', position: 1 },
+      { id: 't1', position: 2 },
+    ])
+  })
+
+  it('returns error on Supabase failure', async () => {
+    mockAuth(makeSupabase({ error: { message: 'reorder failed' } }))
+    expect((await reorderColumn(['t1'])).error).toBe('reorder failed')
   })
 })
 

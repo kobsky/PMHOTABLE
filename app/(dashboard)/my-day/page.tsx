@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getDayOfWeek, getGreeting, formatDate } from '@/lib/utils'
-import { getMyTasks, getProjects } from '@/app/actions/tasks'
+import { getMyTasks } from '@/app/actions/tasks'
+import { getProjects } from '@/app/actions/projects'
 import { getActiveCycle } from '@/app/actions/cycles'
 import { getProfiles } from '@/app/actions/users'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
@@ -20,18 +21,11 @@ export default async function MyDayPage() {
 
   const tasks = await getMyTasks(activeCycle?.id)
 
-  let userName = 'Ty'
-  let currentUserId: string | null = null
-
-  if (auth) {
-    currentUserId = auth.userId
-    const { data: profile } = await auth.supabase
-      .from('profiles')
-      .select('full_name')
-      .eq('id', auth.userId)
-      .single()
-    userName = profile?.full_name?.split(' ')[0] ?? 'Ty'
-  }
+  const currentUserId: string | null = auth?.userId ?? null
+  const currentProfile = currentUserId
+    ? profiles.find((p) => p.id === currentUserId)
+    : null
+  const userName = currentProfile?.full_name?.split(' ')[0] ?? 'Ty'
 
   const today = new Date()
   const inProgress = tasks.filter((t) => t.status === 'in_progress')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useCallback, useTransition, memo } from 'react'
 import { cn, formatRelativeDate, getStatusLabel, scopeColor } from '@/lib/utils'
 import type { TaskWithRelations, DbProject, DbUser, DbCycle, TaskPriority, TaskStatus } from '@/lib/supabase/types'
 import { updateTask, bulkUpdateTasks, getDeletedTasks, restoreTask } from '@/app/actions/tasks'
@@ -80,6 +80,16 @@ export function BacklogView({ tasks, projects, profiles, cycles, initialCycleId 
       })
   }, [localTasks, search, filterStatus, filterPriority, filterProject, filterAssignee, filterCycle, sortBy])
 
+  // PERF-009: precompute id → entity Maps so rows do O(1) lookups instead of
+  // an O(n) profiles.find(...) on every render. (No per-row cycles.find exists
+  // today, so only a profiles map is needed; cycles are looked up only in the
+  // filter bar / bulk selects which already iterate the small `cycles` array.)
+  const profilesById = useMemo(() => {
+    const map = new Map<string, DbUser>()
+    for (const p of profiles) map.set(p.id, p)
+    return map
+  }, [profiles])
+
   // ---------------------------------------------------------------------------
   // Optimistic helpers
   // ---------------------------------------------------------------------------
@@ -94,26 +104,37 @@ export function BacklogView({ tasks, projects, profiles, cycles, initialCycleId 
     setSelectedTask(null)
   }
 
-  function handleInlineUpdate(taskId: string, patch: { assignee_id?: string | null; priority?: TaskPriority }) {
-    setLocalTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, ...patch } : t))
-    startTransition(async () => {
-      const { error } = await updateTask(taskId, patch)
-      if (error) toast.error('Nie udało się zapisać')
-    })
-  }
+  // Stable callback so memo()'d rows don't re-render when an unrelated row updates.
+  // Closes over no changing values (uses functional setState + module fns), so [] is correct.
+  const handleInlineUpdate = useCallback(
+    (taskId: string, patch: { assignee_id?: string | null; priority?: TaskPriority }) => {
+      setLocalTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, ...patch } : t))
+      startTransition(async () => {
+        const { error } = await updateTask(taskId, patch)
+        if (error) toast.error('Nie udało się zapisać')
+      })
+    },
+    [],
+  )
 
   // ---------------------------------------------------------------------------
   // Multi-select
   // ---------------------------------------------------------------------------
 
-  function toggleSelect(id: string) {
+  // Stable callbacks consumed by memo()'d BacklogRow. Each closes only over
+  // functional setState, so [] deps are correct and rows stay referentially stable.
+  const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
-  }
+  }, [])
+
+  const handleOpen = useCallback((task: TaskWithRelations) => {
+    setSelectedTask(task)
+  }, [])
 
   function toggleSelectAll() {
     if (selectedIds.size === filtered.length) {
@@ -425,9 +446,10 @@ export function BacklogView({ tasks, projects, profiles, cycles, initialCycleId 
                 key={task.id}
                 task={task}
                 profiles={profiles}
+                assignee={task.assignee_id ? profilesById.get(task.assignee_id) : undefined}
                 isSelected={selectedIds.has(task.id)}
-                onToggleSelect={() => toggleSelect(task.id)}
-                onOpen={() => setSelectedTask(task)}
+                onToggleSelect={toggleSelect}
+                onOpen={handleOpen}
                 onInlineUpdate={handleInlineUpdate}
               />
             ))
@@ -495,16 +517,26 @@ export function BacklogView({ tasks, projects, profiles, cycles, initialCycleId 
 // Backlog row (extracted for readability)
 // ---------------------------------------------------------------------------
 
+// PERF-001: BacklogRow is wrapped in React.memo() (see export below) so typing in
+// the search box no longer re-renders every row's heavy subtree (selects, badges).
+// For memo to actually hold, the parent must pass referentially stable props:
+//   - task / assignee: stable per id (assignee precomputed via profilesById, PERF-009)
+//   - profiles: stable server prop (only the inline <select> dropdown needs the full list)
+//   - onToggleSelect / onOpen / onInlineUpdate: useCallback'd; they receive the
+//     id/task as an argument so a single shared fn serves all rows (no per-row arrows).
+// NOTE: true row windowing/virtualization would need @tanstack/react-virtual (a new
+// dependency). Per the no-new-deps rule it is intentionally NOT added here.
 interface BacklogRowProps {
   task: TaskWithRelations
   profiles: DbUser[]
+  assignee: DbUser | undefined
   isSelected: boolean
-  onToggleSelect: () => void
-  onOpen: () => void
+  onToggleSelect: (id: string) => void
+  onOpen: (task: TaskWithRelations) => void
   onInlineUpdate: (id: string, patch: { assignee_id?: string | null; priority?: TaskPriority }) => void
 }
 
-function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInlineUpdate }: BacklogRowProps) {
+const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelected, onToggleSelect, onOpen, onInlineUpdate }: BacklogRowProps) {
   const projectColor = scopeColor(task.project?.scope_tag ?? '')
   const isOverdue = task.due_date && task.status !== 'done' && new Date(task.due_date) < new Date()
 
@@ -516,7 +548,6 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
     cancelled:   Ban,
   }[task.status] ?? Circle
 
-  const assignee = profiles.find((p) => p.id === task.assignee_id)
   const assigneeInitial = assignee
     ? (assignee.full_name ?? assignee.email ?? '?')[0].toUpperCase()
     : null
@@ -532,7 +563,7 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
       {/* Checkbox */}
       <div
         className="flex items-center"
-        onClick={(e) => { e.stopPropagation(); onToggleSelect() }}
+        onClick={(e) => { e.stopPropagation(); onToggleSelect(task.id) }}
       >
         <input
           type="checkbox"
@@ -544,7 +575,7 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
 
       {/* Tytuł — click opens modal */}
       <div
-        onClick={onOpen}
+        onClick={() => onOpen(task)}
         className="flex items-center gap-2.5 min-w-0 cursor-pointer"
       >
         <div
@@ -593,7 +624,7 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
 
       {/* Projekt */}
       <span
-        onClick={onOpen}
+        onClick={() => onOpen(task)}
         className="font-mono text-2xs truncate self-center cursor-pointer"
         style={{ color: projectColor }}
         title={task.project?.name ?? ''}
@@ -603,7 +634,7 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
 
       {/* Status */}
       <div
-        onClick={onOpen}
+        onClick={() => onOpen(task)}
         className="flex items-center gap-1.5 self-center cursor-pointer"
       >
         <StatusIcon
@@ -647,7 +678,7 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
 
       {/* Termin */}
       <div
-        onClick={onOpen}
+        onClick={() => onOpen(task)}
         className="flex items-center justify-end gap-1 self-center cursor-pointer"
       >
         {task.due_date ? (
@@ -666,7 +697,7 @@ function BacklogRow({ task, profiles, isSelected, onToggleSelect, onOpen, onInli
       </div>
     </div>
   )
-}
+})
 
 // ---------------------------------------------------------------------------
 // Small components

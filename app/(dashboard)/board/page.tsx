@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { getTasksForCycle, getProjects } from '@/app/actions/tasks'
+import { getTasksForCycle } from '@/app/actions/tasks'
+import { getProjects } from '@/app/actions/projects'
 import { getAllCycles, getCycleById, getActiveCycle } from '@/app/actions/cycles'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { getProfiles } from '@/app/actions/users'

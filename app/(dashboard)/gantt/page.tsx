@@ -1,9 +1,17 @@
 import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { getAllCycles } from '@/app/actions/cycles'
 import { getGoals } from '@/app/actions/goals'
 import { getAllTasksWithRelations } from '@/app/actions/tasks'
 import { PageHeader } from '@/components/compass/page-header'
-import { GanttView } from '@/components/compass/gantt-view'
+
+// Code-split the heavy client Gantt component out of the initial chunk.
+// This page is a Server Component, so `ssr: false` is not permitted here
+// (Next 15 disallows it in Server Components); default SSR still code-splits
+// and preserves the existing render behavior.
+const GanttView = dynamic(() =>
+  import('@/components/compass/gantt-view').then((m) => m.GanttView),
+)
 
 export const metadata: Metadata = { title: 'Gantt — Oś czasu' }
 export const revalidate = 60

@@ -41,6 +41,36 @@ interface GanttViewProps {
   tasks?: Array<{ cycle_id: string | null; size?: TaskSize | null }>
 }
 
+// ─── gridlines (module scope — stable identity) ─────────────────────────────────
+// Rendered per-row (not as one overlay) on purpose: section rows use the dimmer
+// `light` variant while data rows use the normal variant, and each row clips its
+// own gridlines to its height. A single full-height overlay can't reproduce that
+// per-row light/normal distinction without a visual change, so we keep per-row
+// rendering — but with a stable module-scope component identity + memoized props.
+interface GridlinesProps {
+  months: Array<{ x: number }>
+  todayX: number
+  light?: boolean
+}
+
+function Gridlines({ months, todayX, light = false }: GridlinesProps) {
+  return (
+    <>
+      {months.map((m, i) => (
+        <div
+          key={i}
+          style={{ left: m.x, position: 'absolute', top: 0, bottom: 0, width: 1 }}
+          className={light ? 'bg-compass-border/20' : 'bg-compass-border/35'}
+        />
+      ))}
+      <div
+        style={{ left: todayX, position: 'absolute', top: 0, bottom: 0, width: 1 }}
+        className="bg-compass-accent/50 z-10"
+      />
+    </>
+  )
+}
+
 // ─── component ────────────────────────────────────────────────────────────────
 const SIZE_ORDER: TaskSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
@@ -64,9 +94,11 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
     return () => ro.disconnect()
   }, [])
 
-  const milestones = goals.filter((g) => g.type === 'grant_milestone')
-  const objectives = goals.filter((g) => g.type === 'objective')
-  const keyResults = goals.filter((g) => g.type === 'key_result')
+  const { milestones, objectives, keyResults } = useMemo(() => ({
+    milestones: goals.filter((g) => g.type === 'grant_milestone'),
+    objectives: goals.filter((g) => g.type === 'objective'),
+    keyResults: goals.filter((g) => g.type === 'key_result'),
+  }), [goals])
 
   const isEmpty = cycles.length === 0 && goals.length === 0
 
@@ -137,26 +169,22 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
     ]),
   ], [cycles, milestones, objectives, keyResults])
 
-  const todayX = xOf(today)
+  // ── Per-cycle task size counts (memoized so ResizeObserver ticks don't recompute) ──
+  const sizeCountsByCycle = useMemo(() => {
+    const map = new Map<string, Partial<Record<TaskSize, number>>>()
+    for (const cycle of cycles) {
+      const cycleTasks = tasks.filter((t) => t.cycle_id === cycle.id)
+      const sizeCounts = SIZE_ORDER.reduce<Partial<Record<TaskSize, number>>>((acc, s) => {
+        const count = cycleTasks.filter((t) => (t.size ?? 'M') === s).length
+        if (count > 0) acc[s] = count
+        return acc
+      }, {})
+      map.set(cycle.id, sizeCounts)
+    }
+    return map
+  }, [cycles, tasks])
 
-  // ── Gridlines (reused per row) ──────────────────────────────────────────────
-  function Gridlines({ light = false }: { light?: boolean }) {
-    return (
-      <>
-        {months.map((m, i) => (
-          <div
-            key={i}
-            style={{ left: m.x, position: 'absolute', top: 0, bottom: 0, width: 1 }}
-            className={light ? 'bg-compass-border/20' : 'bg-compass-border/35'}
-          />
-        ))}
-        <div
-          style={{ left: todayX, position: 'absolute', top: 0, bottom: 0, width: 1 }}
-          className="bg-compass-accent/50 z-10"
-        />
-      </>
-    )
-  }
+  const todayX = xOf(today)
 
   if (isEmpty) {
     return (
@@ -234,7 +262,7 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
                   className="relative bg-compass-surface-2/40 border-b border-compass-border flex-shrink-0"
                   style={{ width: timelineWidth }}
                 >
-                  <Gridlines light />
+                  <Gridlines months={months} todayX={todayX} light />
                 </div>
               </div>
             )
@@ -246,12 +274,7 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
             const end = parseDate(cycle.end_date)
             const x = xOf(start)
             const w = wOf(start, end)
-            const cycleTasks = tasks.filter((t) => t.cycle_id === cycle.id)
-            const sizeCounts = SIZE_ORDER.reduce<Partial<Record<TaskSize, number>>>((acc, s) => {
-              const count = cycleTasks.filter((t) => (t.size ?? 'M') === s).length
-              if (count > 0) acc[s] = count
-              return acc
-            }, {})
+            const sizeCounts = sizeCountsByCycle.get(cycle.id) ?? {}
             const hasSizes = Object.keys(sizeCounts).length > 0
             return (
               <div key={cycle.id} className="flex" style={{ height: ROW_H }}>
@@ -273,7 +296,7 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
                   className="relative border-b border-compass-border flex-shrink-0"
                   style={{ width: timelineWidth }}
                 >
-                  <Gridlines />
+                  <Gridlines months={months} todayX={todayX} />
                   <div
                     style={{ left: x, width: w, top: 6, height: ROW_H - 12, position: 'absolute' }}
                     className={cn(
@@ -346,7 +369,7 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
                   className="relative border-b border-compass-border flex-shrink-0"
                   style={{ width: timelineWidth }}
                 >
-                  <Gridlines />
+                  <Gridlines months={months} todayX={todayX} />
                   {/* Runway track */}
                   {x > 0 && (
                     <div
@@ -406,7 +429,7 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
                   className="relative border-b border-compass-border flex-shrink-0"
                   style={{ width: timelineWidth }}
                 >
-                  <Gridlines />
+                  <Gridlines months={months} todayX={todayX} />
                   <div
                     style={{ left: x, width: w, top: 7, height: ROW_H - 14, position: 'absolute' }}
                     className="bg-compass-accent/10 border border-compass-accent/30 rounded-[2px] overflow-hidden z-10"
@@ -444,7 +467,7 @@ export function GanttView({ cycles, goals, tasks = [] }: GanttViewProps) {
                   className="relative border-b border-compass-border flex-shrink-0"
                   style={{ width: timelineWidth }}
                 >
-                  <Gridlines />
+                  <Gridlines months={months} todayX={todayX} />
                   <div
                     style={{ left: x, width: w, top: 10, height: ROW_H - 20, position: 'absolute' }}
                     className="bg-compass-surface-3 border border-compass-border rounded-[2px] overflow-hidden z-10"

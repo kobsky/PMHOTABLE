@@ -437,18 +437,14 @@ export async function bulkCategorizeTaskTypes(
 
   if (toUpdate.length === 0) return { error: null, updated: 0 }
 
-  const results = await Promise.all(
-    toUpdate.map(({ id, type }) =>
-      auth.supabase
-        .from('tasks')
-        .update({ type, ai_suggested: true })
-        .eq('id', id)
-        .is('deleted_at', null)
-    )
-  )
+  // ONE batch upsert (id + new type) — mirrors reorderSubtasks batch pattern.
+  const rows = toUpdate.map(({ id, type }) => ({ id, type, ai_suggested: true }))
 
-  const failed = results.find((r) => r.error)
-  if (failed?.error) return { error: failed.error.message, updated: 0 }
+  const { error } = await auth.supabase
+    .from('tasks')
+    .upsert(rows)
+
+  if (error) return { error: error.message, updated: 0 }
 
   revalidatePath('/backlog')
   revalidatePath('/board')
