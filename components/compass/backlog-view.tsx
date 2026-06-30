@@ -552,6 +552,15 @@ const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelect
     ? (assignee.full_name ?? assignee.email ?? '?')[0].toUpperCase()
     : null
 
+  // WIZ-001: keyboard activation for the clickable "open detail" cells.
+  // Enter / Space open the modal, matching the mouse onClick={() => onOpen(task)}.
+  const handleOpenKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onOpen(task)
+    }
+  }
+
   return (
     <div
       className={cn(
@@ -563,20 +572,31 @@ const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelect
       {/* Checkbox */}
       <div
         className="flex items-center"
-        onClick={(e) => { e.stopPropagation(); onToggleSelect(task.id) }}
+        onClick={(e) => {
+          // Toggle when the surrounding cell (not the checkbox itself) is clicked,
+          // so the native input's onChange fires exactly once and never double-toggles.
+          e.stopPropagation()
+          if (e.target !== e.currentTarget) return
+          onToggleSelect(task.id)
+        }}
       >
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={() => {}}
+          onChange={() => onToggleSelect(task.id)}
+          aria-label={`Zaznacz zadanie: ${task.title}`}
           className="w-3.5 h-3.5 accent-compass-accent cursor-pointer"
         />
       </div>
 
       {/* Tytuł — click opens modal */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label={`Otwórz zadanie: ${task.title}`}
         onClick={() => onOpen(task)}
-        className="flex items-center gap-2.5 min-w-0 cursor-pointer"
+        onKeyDown={handleOpenKeyDown}
+        className="flex items-center gap-2.5 min-w-0 cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-compass-accent rounded-[3px]"
       >
         <div
           className="w-[2px] h-4 rounded-full flex-shrink-0 opacity-60"
@@ -606,6 +626,7 @@ const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelect
         <select
           value={task.assignee_id ?? ''}
           onChange={(e) => onInlineUpdate(task.id, { assignee_id: e.target.value || null })}
+          aria-label={`Przypisz osobę do zadania: ${task.title}`}
           className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 bg-compass-surface-2 text-compass-text"
         >
           <option value="" className="bg-compass-surface-2 text-compass-text">— Brak</option>
@@ -624,8 +645,12 @@ const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelect
 
       {/* Projekt */}
       <span
+        role="button"
+        tabIndex={0}
+        aria-label={`Otwórz zadanie: ${task.title}`}
         onClick={() => onOpen(task)}
-        className="font-mono text-2xs truncate self-center cursor-pointer"
+        onKeyDown={handleOpenKeyDown}
+        className="font-mono text-2xs truncate self-center cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-compass-accent rounded-[3px]"
         style={{ color: projectColor }}
         title={task.project?.name ?? ''}
       >
@@ -634,8 +659,12 @@ const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelect
 
       {/* Status */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label={`Otwórz zadanie: ${task.title}`}
         onClick={() => onOpen(task)}
-        className="flex items-center gap-1.5 self-center cursor-pointer"
+        onKeyDown={handleOpenKeyDown}
+        className="flex items-center gap-1.5 self-center cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-compass-accent rounded-[3px]"
       >
         <StatusIcon
           size={11}
@@ -661,6 +690,7 @@ const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelect
         <select
           value={task.priority}
           onChange={(e) => onInlineUpdate(task.id, { priority: e.target.value as TaskPriority })}
+          aria-label={`Zmień priorytet zadania: ${task.title}`}
           className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 bg-compass-surface-2 text-compass-text"
         >
           <option value="urgent" className="bg-compass-surface-2 text-compass-text">Pilny</option>
@@ -678,8 +708,12 @@ const BacklogRow = memo(function BacklogRow({ task, profiles, assignee, isSelect
 
       {/* Termin */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label={`Otwórz zadanie: ${task.title}`}
         onClick={() => onOpen(task)}
-        className="flex items-center justify-end gap-1 self-center cursor-pointer"
+        onKeyDown={handleOpenKeyDown}
+        className="flex items-center justify-end gap-1 self-center cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-compass-accent rounded-[3px]"
       >
         {task.due_date ? (
           <span

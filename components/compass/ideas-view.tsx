@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useTransition } from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { createIdea, updateIdeaStatus, promoteIdeaToTask } from '@/app/actions/ideas'
@@ -157,6 +158,51 @@ function ScaleLegend({ color, label }: { color: string; label: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// ModalShell — dostępny modal na bazie Radix Dialog (focus trap, Esc,
+// przywrócenie focusu, role="dialog" + aria-modal). Zachowuje wzorzec
+// montowania warunkowego: rodzic renderuje modal tylko gdy ma być widoczny,
+// a zamknięcie woła onClose().
+// ---------------------------------------------------------------------------
+
+interface ModalShellProps {
+  title: string
+  onClose: () => void
+  maxWidth?: string
+  children: React.ReactNode
+}
+
+function ModalShell({ title, onClose, maxWidth = 'max-w-md', children }: ModalShellProps) {
+  return (
+    <Dialog.Root open onOpenChange={(o) => { if (!o) onClose() }}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+        <Dialog.Content
+          aria-describedby={undefined}
+          onOpenAutoFocus={(e) => {
+            // Zachowaj dawny UX: focus na pierwszym polu formularza zamiast
+            // na przycisku zamknięcia (domyślne zachowanie Radix).
+            const first = (e.currentTarget as HTMLElement | null)?.querySelector<HTMLElement>('input, textarea, select')
+            if (first) { e.preventDefault(); first.focus() }
+          }}
+          className={cn(
+            'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full p-4',
+            maxWidth
+          )}
+        >
+          <div className="bg-compass-surface border border-compass-border rounded-[4px] shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-compass-border">
+              <Dialog.Title className="text-sm font-semibold text-compass-text">{title}</Dialog.Title>
+              <Dialog.Close className="compass-btn-ghost p-1"><X size={14} /></Dialog.Close>
+            </div>
+            {children}
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // NewIdeaModal
 // ---------------------------------------------------------------------------
 
@@ -218,13 +264,7 @@ function NewIdeaModal({
   const iceColor = iceScore >= 7 ? 'text-compass-success' : iceScore >= 5 ? 'text-compass-warning' : 'text-compass-muted'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-compass-surface border border-compass-border rounded-[4px] w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-compass-border">
-          <h2 className="text-sm font-semibold text-compass-text">Nowy pomysł</h2>
-          <button onClick={onClose} className="compass-btn-ghost p-1"><X size={14} /></button>
-        </div>
-
+    <ModalShell title="Nowy pomysł" onClose={onClose} maxWidth="max-w-md">
         <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4">
           <div>
             <label className="compass-label block mb-1.5">Tytuł</label>
@@ -281,8 +321,7 @@ function NewIdeaModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
 
@@ -309,13 +348,7 @@ function PromoteModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-compass-surface border border-compass-border rounded-[4px] w-full max-w-sm shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-compass-border">
-          <h2 className="text-sm font-semibold text-compass-text">Przekształć w zadanie</h2>
-          <button onClick={onClose} className="compass-btn-ghost p-1"><X size={14} /></button>
-        </div>
-
+    <ModalShell title="Przekształć w zadanie" onClose={onClose} maxWidth="max-w-sm">
         <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4">
           <div className="px-3 py-2.5 bg-compass-surface-2 rounded-[3px] border border-compass-border">
             <p className="text-xs text-compass-muted mb-0.5">Pomysł</p>
@@ -372,8 +405,7 @@ function PromoteModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
 

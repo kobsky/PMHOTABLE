@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
+import * as Dialog from '@radix-ui/react-dialog'
 import { toast } from 'sonner'
 import { cn, formatShortDate } from '@/lib/utils'
 import { createGoal, updateGoalProgress, deleteGoal } from '@/app/actions/goals'
@@ -13,10 +14,82 @@ import {
   FolderOpen, AlertTriangle,
 } from 'lucide-react'
 
-const PRESET_COLORS = [
-  '#E8622A', '#4BAF87', '#F5A83A', '#DE4040',
-  '#848179', '#5B8DD9', '#C084FC', '#34D399',
+const PRESET_COLORS: { value: string; label: string }[] = [
+  { value: '#E8622A', label: 'Pomarańczowy' },
+  { value: '#4BAF87', label: 'Zielony' },
+  { value: '#F5A83A', label: 'Złoty' },
+  { value: '#DE4040', label: 'Czerwony' },
+  { value: '#848179', label: 'Szary' },
+  { value: '#5B8DD9', label: 'Niebieski' },
+  { value: '#C084FC', label: 'Fioletowy' },
+  { value: '#34D399', label: 'Miętowy' },
 ]
+
+const DEFAULT_PROJECT_COLOR = '#848179'
+
+// WIZ-005 — walidacja/normalizacja koloru hex. Akceptuje #RGB i #RRGGBB
+// (z opcjonalnym # i wielkimi/małymi literami), zwraca znormalizowany
+// #rrggbb małymi literami albo null dla wartości niepoprawnych.
+function normalizeHex(input: string): string | null {
+  const v = input.trim().replace(/^#/, '')
+  if (/^[0-9a-fA-F]{6}$/.test(v)) return `#${v.toLowerCase()}`
+  if (/^[0-9a-fA-F]{3}$/.test(v)) {
+    return `#${v.split('').map((c) => c + c).join('').toLowerCase()}`
+  }
+  return null
+}
+
+// Nazwa presetu dla danego hexa (nie-kolorowy nośnik informacji, WCAG 1.4.1).
+function colorLabel(hex: string): string {
+  const norm = normalizeHex(hex)
+  const preset = PRESET_COLORS.find((c) => c.value.toLowerCase() === norm)
+  return preset?.label ?? 'Własny'
+}
+
+// ---------------------------------------------------------------------------
+// ModalShell — dostępny modal na bazie Radix Dialog (focus trap, Esc,
+// przywrócenie focusu, role="dialog" + aria-modal). Zachowuje istniejący
+// wzorzec montowania warunkowego: rodzic renderuje <ModalShell> tylko gdy
+// modal ma być widoczny, a zamknięcie woła onClose().
+// ---------------------------------------------------------------------------
+
+interface ModalShellProps {
+  title: string
+  onClose: () => void
+  maxWidth?: string
+  children: React.ReactNode
+}
+
+function ModalShell({ title, onClose, maxWidth = 'max-w-md', children }: ModalShellProps) {
+  return (
+    <Dialog.Root open onOpenChange={(o) => { if (!o) onClose() }}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
+        <Dialog.Content
+          aria-describedby={undefined}
+          onOpenAutoFocus={(e) => {
+            // Zachowaj dawny UX: focus na pierwszym polu formularza zamiast
+            // na przycisku zamknięcia (domyślne zachowanie Radix).
+            const first = (e.currentTarget as HTMLElement | null)?.querySelector<HTMLElement>('input, textarea, select')
+            if (first) { e.preventDefault(); first.focus() }
+          }}
+          className={cn(
+            'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full p-4',
+            maxWidth
+          )}
+        >
+          <div className="bg-compass-surface border border-compass-border rounded-[4px] shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-compass-border">
+              <Dialog.Title className="text-sm font-semibold text-compass-text">{title}</Dialog.Title>
+              <Dialog.Close className="compass-btn-ghost p-1"><X size={14} /></Dialog.Close>
+            </div>
+            {children}
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
 
 interface GoalsViewProps {
   goals: DbGoal[]
@@ -766,13 +839,7 @@ function NewGoalModal({ objectives, projects, projectId, projectName, onClose, o
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-compass-surface border border-compass-border rounded-[4px] w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-compass-border">
-          <h2 className="text-sm font-semibold text-compass-text">Nowy cel</h2>
-          <button onClick={onClose} className="compass-btn-ghost p-1"><X size={14} /></button>
-        </div>
-
+    <ModalShell title="Nowy cel" onClose={onClose} maxWidth="max-w-md">
         <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-3">
           {/* Projekt */}
           <div>
@@ -888,8 +955,7 @@ function NewGoalModal({ objectives, projects, projectId, projectName, onClose, o
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
 
@@ -946,19 +1012,38 @@ interface NewProjectModalProps {
 
 function NewProjectModal({ onClose, onCreated }: NewProjectModalProps) {
   const [name, setName] = useState('')
-  const [color, setColor] = useState('#848179')
+  // WIZ-005 — `color` zawsze trzyma znormalizowaną, poprawną wartość hex
+  // (używaną do renderu/zapisu). `colorInput` to surowy tekst z pola.
+  const [color, setColor] = useState(DEFAULT_PROJECT_COLOR)
+  const [colorInput, setColorInput] = useState(DEFAULT_PROJECT_COLOR)
   const [description, setDescription] = useState('')
   const [isPending, startTransition] = useTransition()
+
+  const normalizedInput = normalizeHex(colorInput)
+  const hexInvalid = normalizedInput === null
+
+  function selectPreset(value: string) {
+    setColor(value)
+    setColorInput(value)
+  }
+
+  function handleColorInputChange(value: string) {
+    setColorInput(value)
+    const norm = normalizeHex(value)
+    if (norm) setColor(norm)
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
+    // Nie pozwól zapisać niepoprawnego hexa — zachowaj ostatni poprawny kolor.
+    const finalColor = normalizeHex(colorInput) ?? color
 
     startTransition(async () => {
       const { error, project } = await createProject({
         name: name.trim(),
         scope_tag: 'ops',
-        color,
+        color: finalColor,
         description: description.trim() || null,
       })
 
@@ -972,18 +1057,13 @@ function NewProjectModal({ onClose, onCreated }: NewProjectModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-compass-surface border border-compass-border rounded-[4px] w-full max-w-sm shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-compass-border">
-          <h2 className="text-sm font-semibold text-compass-text">Nowy projekt</h2>
-          <button onClick={onClose} className="compass-btn-ghost p-1"><X size={14} /></button>
-        </div>
-
+    <ModalShell title="Nowy projekt" onClose={onClose} maxWidth="max-w-sm">
         <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-3">
           {/* Nazwa */}
           <div>
-            <label className="compass-label block mb-1.5">Nazwa</label>
+            <label className="compass-label block mb-1.5" htmlFor="new-project-name">Nazwa</label>
             <input
+              id="new-project-name"
               autoFocus
               type="text"
               value={name}
@@ -997,37 +1077,67 @@ function NewProjectModal({ onClose, onCreated }: NewProjectModalProps) {
 
           {/* Kolor */}
           <div>
-            <label className="compass-label block mb-1.5">Kolor</label>
+            <label className="compass-label block mb-1.5" htmlFor="new-project-color">Kolor</label>
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5 flex-wrap">
-                {PRESET_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setColor(c)}
-                    className={cn(
-                      'w-5 h-5 rounded-full border-2 transition-all',
-                      color === c ? 'border-compass-text scale-110' : 'border-transparent hover:scale-105'
-                    )}
-                    style={{ backgroundColor: c }}
-                  />
-                ))}
+                {PRESET_COLORS.map((c) => {
+                  const isOn = color.toLowerCase() === c.value.toLowerCase()
+                  return (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => selectPreset(c.value)}
+                      title={c.label}
+                      aria-label={c.label}
+                      aria-pressed={isOn}
+                      disabled={isPending}
+                      className={cn(
+                        'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
+                        isOn ? 'border-compass-text scale-110' : 'border-transparent hover:scale-105'
+                      )}
+                      style={{ backgroundColor: c.value }}
+                    >
+                      {isOn && <CheckCircle2 size={10} className="text-compass-bg" strokeWidth={3} />}
+                    </button>
+                  )
+                })}
               </div>
               <input
+                id="new-project-color"
                 type="text"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="compass-input text-xs w-24 font-mono"
+                value={colorInput}
+                onChange={(e) => handleColorInputChange(e.target.value)}
+                className={cn(
+                  'compass-input text-xs w-24 font-mono',
+                  hexInvalid && 'border-compass-danger'
+                )}
                 placeholder="#848179"
+                spellCheck={false}
+                aria-invalid={hexInvalid}
+                aria-describedby="new-project-color-status"
                 disabled={isPending}
               />
             </div>
+            {/* Nie-kolorowy nośnik informacji (WCAG 1.4.1) + walidacja hex */}
+            <p id="new-project-color-status" className="mt-1.5 flex items-center gap-1.5 font-mono text-2xs">
+              <span
+                className="w-2.5 h-2.5 rounded-full border border-compass-border flex-shrink-0"
+                style={{ backgroundColor: color }}
+                aria-hidden="true"
+              />
+              {hexInvalid ? (
+                <span className="text-compass-danger">Niepoprawny hex — użyję {color}</span>
+              ) : (
+                <span className="text-compass-muted">Kolor: {colorLabel(color)} ({color})</span>
+              )}
+            </p>
           </div>
 
           {/* Opis */}
           <div>
-            <label className="compass-label block mb-1.5">Opis (opcjonalny)</label>
+            <label className="compass-label block mb-1.5" htmlFor="new-project-desc">Opis (opcjonalny)</label>
             <textarea
+              id="new-project-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="compass-input w-full text-sm resize-none"
@@ -1051,8 +1161,7 @@ function NewProjectModal({ onClose, onCreated }: NewProjectModalProps) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
 
@@ -1068,13 +1177,7 @@ interface DeleteProjectConfirmProps {
 
 function DeleteProjectConfirm({ project, onCancel, onConfirm }: DeleteProjectConfirmProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-compass-surface border border-compass-border rounded-[4px] w-full max-w-sm shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-compass-border">
-          <h2 className="text-sm font-semibold text-compass-text">Usuń projekt</h2>
-          <button onClick={onCancel} className="compass-btn-ghost p-1"><X size={14} /></button>
-        </div>
-
+    <ModalShell title="Usuń projekt" onClose={onCancel} maxWidth="max-w-sm">
         <div className="p-4 flex flex-col gap-3">
           <div className="flex items-start gap-3">
             <AlertTriangle size={16} className="text-compass-warning flex-shrink-0 mt-0.5" strokeWidth={1.5} />
@@ -1102,7 +1205,6 @@ function DeleteProjectConfirm({ project, onCancel, onConfirm }: DeleteProjectCon
             </button>
           </div>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   )
 }
