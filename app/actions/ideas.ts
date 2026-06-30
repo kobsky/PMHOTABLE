@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import type { IdeaWithAuthor, IdeaStatus } from '@/lib/supabase/types'
+import type { IdeaWithAuthor, IdeaStatus, TaskPriority } from '@/lib/supabase/types'
 import { MOCK_IDEAS, MOCK_USERS } from '@/lib/mock-data'
 
 // ---------------------------------------------------------------------------
@@ -18,6 +18,23 @@ const CreateIdeaSchema = z.object({
   iceImpact: IceScoreField,
   iceConfidence: IceScoreField,
   iceEase: IceScoreField,
+})
+
+const UpdateIdeaStatusSchema = z
+  .object({
+    status: z.enum(['inbox', 'accepted', 'rejected', 'converted']),
+    rejectionReason: z.string().trim().min(1).max(500).optional().nullable(),
+  })
+  .refine((d) => d.status !== 'rejected' || !!d.rejectionReason, {
+    message: 'Powód odrzucenia jest wymagany przy odrzuceniu pomysłu',
+    path: ['rejectionReason'],
+  })
+
+const PromoteIdeaSchema = z.object({
+  ideaId: z.string().uuid('Nieprawidłowy identyfikator pomysłu'),
+  title: z.string().min(1, 'Tytuł jest wymagany').max(200, 'Tytuł za długi (max 200 znaków)'),
+  projectId: z.string().uuid('Nieprawidłowy projekt'),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
 })
 
 const IDEA_SELECT = '*, author:profiles(*)'
@@ -82,13 +99,20 @@ export async function updateIdeaStatus(
   status: IdeaStatus,
   rejectionReason?: string
 ): Promise<{ error: string | null }> {
+  // Wymuś rejection_reason przy odrzuceniu (LOG-009) — przyjazny komunikat
+  // zamiast surowego błędu CHECK z bazy.
+  const parsed = UpdateIdeaStatusSchema.safeParse({ status, rejectionReason })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
+
   const auth = await getAuthenticatedClient()
 
   if (!auth) return { error: 'Brak autoryzacji' }
 
-  const patch: Record<string, unknown> = { status }
-  if (status === 'rejected' && rejectionReason) {
-    patch.rejection_reason = rejectionReason
+  const patch: Record<string, unknown> = { status: parsed.data.status }
+  if (parsed.data.status === 'rejected') {
+    patch.rejection_reason = parsed.data.rejectionReason
   }
 
   const { error } = await auth.supabase
@@ -110,32 +134,36 @@ export async function promoteIdeaToTask(
     priority?: string
   }
 ): Promise<{ error: string | null }> {
+  const parsed = PromoteIdeaSchema.safeParse({
+    ideaId,
+    title: taskInput.title,
+    projectId: taskInput.projectId,
+    priority: taskInput.priority,
+  })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message }
+  }
+
   const auth = await getAuthenticatedClient()
 
   if (!auth) return { error: 'Brak autoryzacji' }
 
-  // Utwórz zadanie
-  const { data: task, error: taskError } = await auth.supabase
-    .from('tasks')
-    .insert({
-      title: taskInput.title,
-      project_id: taskInput.projectId,
-      priority: taskInput.priority ?? 'medium',
-      status: 'todo',
-      assignee_id: auth.userId,
-    })
-    .select('id')
-    .single()
+  // Atomowy promote (LOG-005): RPC w jednej transakcji tworzy zadanie,
+  // ustawia status pomysłu na 'converted' i wypełnia promoted_to_task_id.
+  // Zwraca id zadania lub null, jeśli pomysł nie istnieje / był już przeniesiony.
+  const priority: TaskPriority = parsed.data.priority ?? 'medium'
+  const { data: newTaskId, error } = await auth.supabase.rpc('promote_idea_to_task', {
+    p_idea_id: parsed.data.ideaId,
+    p_title: parsed.data.title,
+    p_project_id: parsed.data.projectId,
+    p_priority: priority,
+    p_assignee_id: auth.userId,
+  })
 
-  if (taskError) return { error: taskError.message }
-
-  // Oznacz ideę jako converted
-  const { error: ideaError } = await auth.supabase
-    .from('ideas')
-    .update({ status: 'converted' })
-    .eq('id', ideaId)
-
-  if (ideaError) return { error: ideaError.message }
+  if (error) return { error: error.message }
+  if (!newTaskId) {
+    return { error: 'Pomysł nie istnieje lub został już przeniesiony do zadania' }
+  }
 
   revalidatePath('/ideas')
   revalidatePath('/backlog')
