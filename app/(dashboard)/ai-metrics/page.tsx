@@ -11,6 +11,9 @@ const FEATURE_LABELS: Record<AiFeature, string> = {
   auto_categorization: 'Auto-kategoryzacja',
   assignee_recommender: 'Rekomendacja assignee',
   workload_balancing: 'Balansowanie obciążeń',
+  sp_estimation_baseline: 'Estymacja SP (mediana)',
+  wsjf_prioritization: 'Priorytetyzacja WSJF',
+  task_type_classifier_ml: 'Klasyfikator typu (ML)',
 }
 
 function AcceptanceBar({ rate }: { rate: number }) {
