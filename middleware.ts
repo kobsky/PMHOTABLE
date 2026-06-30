@@ -7,10 +7,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next({ request })
   }
 
+  const pathname = request.nextUrl.pathname
+  // Publiczne ścieżki — dostępne bez logowania
+  const isPublicPath = pathname.startsWith('/login') || pathname.startsWith('/auth')
+
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
+    // Produkcja bez ENV — fail-closed: nie wpuszczaj na chronione ścieżki
+    if (!isPublicPath) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
     return NextResponse.next({ request })
   }
 
@@ -40,11 +50,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  const pathname = request.nextUrl.pathname
-
-  // Publiczne ścieżki — dostępne bez logowania
-  const isPublicPath = pathname.startsWith('/login') || pathname.startsWith('/auth')
 
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
