@@ -58,10 +58,12 @@ describe('getIdeas', () => {
     expect(ideas.length).toBeGreaterThan(0)
   })
 
-  it('returns mock ideas when DB returns empty', async () => {
+  it('returns empty array when authenticated and DB returns empty', async () => {
+    // Mock fallback only applies when unauthenticated; an authenticated read of an
+    // empty ideas table correctly yields [].
     mockAuth(makeSupabase({ data: [], error: null }))
     const ideas = await getIdeas()
-    expect(ideas.length).toBeGreaterThan(0)
+    expect(ideas).toEqual([])
   })
 
   it('returns empty array on error', async () => {
@@ -77,7 +79,7 @@ describe('getIdeas', () => {
 describe('createIdea', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
     const result = await createIdea({
       title: 'Test idea',
@@ -85,7 +87,7 @@ describe('createIdea', () => {
       iceConfidence: 5,
       iceEase: 5,
     })
-    expect(result).toEqual({ error: null })
+    expect(result).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('rejects empty title', async () => {
@@ -150,9 +152,9 @@ describe('createIdea', () => {
 describe('updateIdeaStatus', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
-    expect(await updateIdeaStatus('idea-1', 'accepted')).toEqual({ error: null })
+    expect(await updateIdeaStatus('idea-1', 'accepted')).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('succeeds on valid status update', async () => {
@@ -187,13 +189,13 @@ describe('updateIdeaStatus', () => {
 describe('promoteIdeaToTask', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
     const result = await promoteIdeaToTask('idea-1', {
       title: 'Promoted task',
       projectId: 'proj-1',
     })
-    expect(result).toEqual({ error: null })
+    expect(result).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('returns task creation error if insert fails', async () => {

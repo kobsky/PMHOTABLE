@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // ---------------------------------------------------------------------------
 // Module mocks (hoisted before imports)
 // ---------------------------------------------------------------------------
-vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 vi.mock('@/lib/supabase/server', () => ({ getAuthenticatedClient: vi.fn() }))
 vi.mock('@/lib/mock-data', async () => {
   const actual = await vi.importActual<typeof import('@/lib/mock-data')>('@/lib/mock-data')
@@ -41,7 +41,7 @@ function makeChain(result: { data?: unknown; error?: unknown; count?: number } =
     single: vi.fn().mockResolvedValue(r),
     maybeSingle: vi.fn().mockResolvedValue(r),
   }
-  for (const m of ['select', 'insert', 'update', 'delete', 'eq', 'neq', 'is', 'not', 'in', 'order', 'limit']) {
+  for (const m of ['select', 'insert', 'update', 'delete', 'eq', 'neq', 'is', 'not', 'in', 'filter', 'order', 'limit']) {
     chain[m] = vi.fn().mockReturnValue(chain)
   }
   return chain
@@ -119,10 +119,10 @@ describe('getAllTasksWithRelations', () => {
 describe('createTask', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated (dev mode)', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
     const result = await createTask({ title: 'Test', projectId: 'proj-1' })
-    expect(result).toEqual({ error: null })
+    expect(result).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('returns { error: null } on successful insert', async () => {
@@ -156,10 +156,10 @@ describe('createTask', () => {
 describe('updateTask', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
     const result = await updateTask('task-1', { title: 'Updated' })
-    expect(result).toEqual({ error: null })
+    expect(result).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('returns { error: null } on successful update', async () => {
@@ -181,9 +181,9 @@ describe('updateTask', () => {
 describe('updateTaskStatus', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
-    expect(await updateTaskStatus('task-1', 'done')).toEqual({ error: null })
+    expect(await updateTaskStatus('task-1', 'done')).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('returns { error: null } on success', async () => {
@@ -203,9 +203,9 @@ describe('updateTaskStatus', () => {
 describe('deleteTask', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
-    expect(await deleteTask('task-1')).toEqual({ error: null })
+    expect(await deleteTask('task-1')).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('soft-deletes (uses update not delete)', async () => {
@@ -268,9 +268,9 @@ describe('bulkUpdateTasks', () => {
     expect(result).toEqual({ error: null })
   })
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
-    expect(await bulkUpdateTasks(['t1'], { status: 'done' })).toEqual({ error: null })
+    expect(await bulkUpdateTasks(['t1'], { status: 'done' })).toEqual({ error: 'Brak autoryzacji' })
   })
 })
 
@@ -285,9 +285,9 @@ describe('reorderColumn', () => {
     expect(await reorderColumn([])).toEqual({ error: null })
   })
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
-    expect(await reorderColumn(['t1', 't2'])).toEqual({ error: null })
+    expect(await reorderColumn(['t1', 't2'])).toEqual({ error: 'Brak autoryzacji' })
   })
 })
 
@@ -314,9 +314,9 @@ describe('getDeletedTasks', () => {
 describe('restoreTask', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns { error: null } when unauthenticated', async () => {
+  it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
-    expect(await restoreTask('task-1')).toEqual({ error: null })
+    expect(await restoreTask('task-1')).toEqual({ error: 'Brak autoryzacji' })
   })
 
   it('restores by setting deleted_at to null', async () => {
