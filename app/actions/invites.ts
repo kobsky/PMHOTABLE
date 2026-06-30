@@ -7,6 +7,16 @@ import { redirect } from 'next/navigation'
 import { Resend } from 'resend'
 import { headers } from 'next/headers'
 
+// Escapowanie wartości wstawianych do HTML maila (ochrona przed iniekcją).
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // ---------------------------------------------------------------------------
 // Validation
 // ---------------------------------------------------------------------------
@@ -66,9 +76,15 @@ export async function generateInviteToken(
     return { error: 'Nie udało się wygenerować linku zaproszenia' }
   }
 
-  // Get base URL from environment or construct from headers
+  // Get base URL from environment or construct from headers.
+  // W produkcji nie ufamy nagłówkowi Host (host-header injection) —
+  // wymagamy jawnie skonfigurowanego NEXT_PUBLIC_APP_URL.
   let baseUrl = process.env.NEXT_PUBLIC_APP_URL
   if (!baseUrl) {
+    if (process.env.NODE_ENV !== 'development') {
+      console.error('generateInviteToken: brak NEXT_PUBLIC_APP_URL w produkcji')
+      return { error: 'Brak konfiguracji adresu aplikacji' }
+    }
     const headersList = await headers()
     const host = headersList.get('host') || 'localhost:3000'
     const protocol = headersList.get('x-forwarded-proto') || 'http'
@@ -76,6 +92,7 @@ export async function generateInviteToken(
   }
 
   const inviteLink = `${baseUrl}/invite/${data.token}`
+  const safeInviteLink = escapeHtml(inviteLink)
 
   // Send invitation email
   if (process.env.RESEND_API_KEY) {
@@ -89,11 +106,11 @@ export async function generateInviteToken(
           <h2>Witaj w Hotable Compass!</h2>
           <p>Zostałeś zaproszony do zespołu Hotable Compass.</p>
           <p>
-            <a href="${inviteLink}" style="background-color: #E8622A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            <a href="${safeInviteLink}" style="background-color: #E8622A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
               Zaakceptuj zaproszenie
             </a>
           </p>
-          <p>Lub skopiuj ten link: ${inviteLink}</p>
+          <p>Lub skopiuj ten link: ${safeInviteLink}</p>
           <p>Link wygasa za 7 dni.</p>
         `,
       })

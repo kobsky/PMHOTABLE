@@ -165,8 +165,7 @@ export async function updateTaskStatus(
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  // Dev bez auth — optimistic update po stronie klienta wystarczy
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const patch: Record<string, unknown> = { status }
   if (position !== undefined) patch.position = position
@@ -201,8 +200,7 @@ export async function createTask(input: {
 
   const auth = await getAuthenticatedClient()
 
-  // Dev bez auth — brak persistencji, ale toast pokaże sukces
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { data } = parsed
   const { error } = await auth.supabase.from('tasks').insert({
@@ -245,7 +243,7 @@ export async function updateTask(
   }
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('tasks')
@@ -267,7 +265,7 @@ export async function updateTask(
 // Soft delete — zachowuje dane historyczne, ukrywa w UI
 export async function deleteTask(taskId: string): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('tasks')
@@ -288,7 +286,7 @@ export async function moveTaskToCycle(
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('tasks')
@@ -308,7 +306,7 @@ export async function updateTaskSize(
   size: TaskSize
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const VALID_SIZES: TaskSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
   if (!VALID_SIZES.includes(size)) return { error: 'Nieprawidłowy rozmiar' }
@@ -337,7 +335,7 @@ export async function updateTaskStoryPoints(
   if (points === 13) return { error: 'Zadań z 13 punktami nie można przypisywać do sprintów' }
 
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   // Capacity warning: check current assignee load in the task's cycle
   const { data: task } = await auth.supabase
@@ -392,7 +390,7 @@ export async function updateTaskRaci(
   raci: RaciMatrix | null
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('tasks')
@@ -445,7 +443,7 @@ export async function updateSubtaskStatus(
   done: boolean
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('tasks')
@@ -460,7 +458,7 @@ export async function removeSubtask(
   taskId: string
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('tasks')
@@ -480,7 +478,7 @@ export async function reorderColumn(
   taskIds: string[]
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   if (taskIds.length === 0) return { error: null }
 
@@ -511,7 +509,7 @@ export async function bulkUpdateTasks(
   patch: { assignee_id?: string | null; cycle_id?: string | null; status?: TaskStatus }
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   if (taskIds.length === 0) return { error: null }
 
@@ -552,7 +550,7 @@ export async function restoreTask(
   taskId: string
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('tasks')
