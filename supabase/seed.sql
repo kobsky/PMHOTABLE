@@ -90,21 +90,23 @@ begin
     return;
   end if;
 
+  -- task_type po migracji 015: research/development/outreach/design/marketing/support/ops
+  -- (mapowanie ze starego enumu: feature->development, bug->support, chore->ops)
   insert into tasks (title, status, priority, type, project_id, cycle_id, assignee_id, position)
   values
     -- Hotable MVP — aktywny sprint
-    ('Implementacja auth magic link',      'done',        'high',   'feature',   v_mvp,   v_cycle, v_ania,  10),
-    ('Sprint Board — kolumny Kanban',      'done',        'high',   'feature',   v_mvp,   v_cycle, v_marek, 20),
-    ('Drag-and-drop między kolumnami',     'in_progress', 'high',   'feature',   v_mvp,   v_cycle, v_marek, 10),
-    ('Realtime subscriptions dla tasks',   'in_progress', 'medium', 'feature',   v_mvp,   v_cycle, v_kasia, 20),
-    ('Naprawić WIP limit counter',         'in_review',   'medium', 'bug',       v_mvp,   v_cycle, v_ania,  10),
-    ('Widok Backlog z filtrowaniem',       'todo',        'medium', 'feature',   v_mvp,   v_cycle, v_marek, 30),
+    ('Implementacja auth magic link',      'done',        'high',   'development', v_mvp,   v_cycle, v_ania,  10),
+    ('Sprint Board — kolumny Kanban',      'done',        'high',   'development', v_mvp,   v_cycle, v_marek, 20),
+    ('Drag-and-drop między kolumnami',     'in_progress', 'high',   'development', v_mvp,   v_cycle, v_marek, 10),
+    ('Realtime subscriptions dla tasks',   'in_progress', 'medium', 'development', v_mvp,   v_cycle, v_kasia, 20),
+    ('Naprawić WIP limit counter',         'in_review',   'medium', 'support',     v_mvp,   v_cycle, v_ania,  10),
+    ('Widok Backlog z filtrowaniem',       'todo',        'medium', 'development', v_mvp,   v_cycle, v_marek, 30),
     -- Grant PARP — aktywny sprint
-    ('Raport kwartalny Q1 2026 (PARP)',    'todo',        'urgent', 'research',  v_grant, v_cycle, v_ania,  10),
-    ('Dokumentacja milestones WP1',        'in_progress', 'high',   'feature',   v_grant, v_cycle, v_kasia, 10),
+    ('Raport kwartalny Q1 2026 (PARP)',    'todo',        'urgent', 'research',    v_grant, v_cycle, v_ania,  10),
+    ('Dokumentacja milestones WP1',        'in_progress', 'high',   'development', v_grant, v_cycle, v_kasia, 10),
     -- Marketing — aktywny sprint + backlog
-    ('Kampania Product Hunt launch',       'todo',        'medium', 'marketing', v_mkt,   v_cycle, v_kasia, 10),
-    ('Analiza konkurencji Q2 2026',        'todo',        'low',    'research',  v_mkt,   null,    v_marek, 10);
+    ('Kampania Product Hunt launch',       'todo',        'medium', 'marketing',   v_mkt,   v_cycle, v_kasia, 10),
+    ('Analiza konkurencji Q2 2026',        'todo',        'low',    'research',    v_mkt,   null,    v_marek, 10);
 
 end $$;
 
