@@ -40,7 +40,7 @@ export function inferTaskType(title: string): TaskTypeInference | null {
   }
 
   // Support & Feedback
-  if (/\b(support|fix(ed|ing|uj|uję)?|bug|błąd|error|crash|broken|hotfix|glitch|feedback|zgłoszeni[ae]|issue|problem|napraw|klient|customer)\b/.test(t)) {
+  if (/\b(support|fix(ed|ing|uj|uję)?|bug|błąd|error|crash\w*|broken|hotfix|glitch\w*|feedback|zgłoszeni[ae]|issue|problem|napraw\w*|klient|customer)\b/.test(t)) {
     return { type: 'support', confidence: 0.82 }
   }
 

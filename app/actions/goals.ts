@@ -68,7 +68,7 @@ export async function updateGoal(
 
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('goals')
@@ -119,7 +119,7 @@ export async function createGoal(input: {
 
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { data } = parsed
   const { data: goal, error } = await auth.supabase
@@ -153,7 +153,7 @@ export async function updateGoalProgress(
 
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('goals')
@@ -169,7 +169,7 @@ export async function updateGoalProgress(
 export async function deleteGoal(id: string): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('goals')

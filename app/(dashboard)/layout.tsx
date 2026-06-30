@@ -9,18 +9,19 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const supabase = await createClient()
 
-  // W trybie dev bez Supabase — mock user
+  // Mock user dozwolony WYŁĄCZNIE w trybie dev (NODE_ENV==='development').
+  // W produkcji brak sesji/ENV → fail-closed (redirect /login).
   const isDev = process.env.NODE_ENV === 'development'
-  const mockUser = {
-    email: 'dev@hotable.pl',
-    user_metadata: { full_name: 'Dev User' },
-  }
 
   let user = null
   if (supabase) {
     const { data } = await supabase.auth.getUser()
     user = data.user
   }
+
+  const mockUser = isDev
+    ? { email: 'dev@hotable.pl', user_metadata: { full_name: 'Dev User' } }
+    : null
 
   const currentUser = user ?? (isDev ? mockUser : null)
 

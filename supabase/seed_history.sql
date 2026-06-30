@@ -20,20 +20,22 @@ BEGIN
       CONTINUE;
     END IF;
 
+    -- task_type po migracji 015: research/development/outreach/design/marketing/support/ops
+    -- (mapowanie ze starego enumu: feature->development, bug->support, chore->ops)
     INSERT INTO tasks (title, type, status, priority, assignee_id, project_id, ai_suggested, created_at, updated_at)
     VALUES
-      ('Feature: onboarding wizard — step 1',  'feature',  'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '90 days', NOW() - INTERVAL '88 days'),
-      ('Bug: fix race condition in auth flow',   'bug',      'done', 'urgent', rec.id, proj_id, false, NOW() - INTERVAL '85 days', NOW() - INTERVAL '84 days'),
-      ('Research: evaluate third-party APIs',    'research', 'done', 'medium', rec.id, proj_id, false, NOW() - INTERVAL '80 days', NOW() - INTERVAL '78 days'),
-      ('Feature: dashboard KPI cards',           'feature',  'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '75 days', NOW() - INTERVAL '73 days'),
-      ('Chore: upgrade Next.js to v15',          'chore',    'done', 'low',    rec.id, proj_id, false, NOW() - INTERVAL '70 days', NOW() - INTERVAL '70 days'),
-      ('Bug: broken pagination on backlog view', 'bug',      'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '65 days', NOW() - INTERVAL '64 days'),
-      ('Design: sprint board card redesign',     'design',   'done', 'medium', rec.id, proj_id, false, NOW() - INTERVAL '60 days', NOW() - INTERVAL '58 days'),
-      ('Feature: CSV export for goals',          'feature',  'done', 'medium', rec.id, proj_id, false, NOW() - INTERVAL '55 days', NOW() - INTERVAL '53 days'),
-      ('Research: performance profiling',        'research', 'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '50 days', NOW() - INTERVAL '48 days'),
-      ('Chore: add ESLint strict rules',         'chore',    'done', 'low',    rec.id, proj_id, false, NOW() - INTERVAL '45 days', NOW() - INTERVAL '45 days'),
-      ('Feature: email notification digest',     'feature',  'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '40 days', NOW() - INTERVAL '38 days'),
-      ('Bug: fix Supabase realtime disconnect',  'bug',      'done', 'urgent', rec.id, proj_id, false, NOW() - INTERVAL '35 days', NOW() - INTERVAL '34 days');
+      ('Feature: onboarding wizard — step 1',  'development', 'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '90 days', NOW() - INTERVAL '88 days'),
+      ('Bug: fix race condition in auth flow',   'support',    'done', 'urgent', rec.id, proj_id, false, NOW() - INTERVAL '85 days', NOW() - INTERVAL '84 days'),
+      ('Research: evaluate third-party APIs',    'research',   'done', 'medium', rec.id, proj_id, false, NOW() - INTERVAL '80 days', NOW() - INTERVAL '78 days'),
+      ('Feature: dashboard KPI cards',           'development', 'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '75 days', NOW() - INTERVAL '73 days'),
+      ('Chore: upgrade Next.js to v15',          'ops',        'done', 'low',    rec.id, proj_id, false, NOW() - INTERVAL '70 days', NOW() - INTERVAL '70 days'),
+      ('Bug: broken pagination on backlog view', 'support',    'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '65 days', NOW() - INTERVAL '64 days'),
+      ('Design: sprint board card redesign',     'design',     'done', 'medium', rec.id, proj_id, false, NOW() - INTERVAL '60 days', NOW() - INTERVAL '58 days'),
+      ('Feature: CSV export for goals',          'development', 'done', 'medium', rec.id, proj_id, false, NOW() - INTERVAL '55 days', NOW() - INTERVAL '53 days'),
+      ('Research: performance profiling',        'research',   'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '50 days', NOW() - INTERVAL '48 days'),
+      ('Chore: add ESLint strict rules',         'ops',        'done', 'low',    rec.id, proj_id, false, NOW() - INTERVAL '45 days', NOW() - INTERVAL '45 days'),
+      ('Feature: email notification digest',     'development', 'done', 'high',   rec.id, proj_id, false, NOW() - INTERVAL '40 days', NOW() - INTERVAL '38 days'),
+      ('Bug: fix Supabase realtime disconnect',  'support',    'done', 'urgent', rec.id, proj_id, false, NOW() - INTERVAL '35 days', NOW() - INTERVAL '34 days');
 
     RAISE NOTICE 'Seeded 12 tasks for profile %', rec.id;
   END LOOP;

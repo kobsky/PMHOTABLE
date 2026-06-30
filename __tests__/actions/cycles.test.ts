@@ -59,11 +59,13 @@ describe('getActiveCycle', () => {
     expect(cycle).not.toBeNull()
   })
 
-  it('returns MOCK_CYCLE when DB has no active cycle', async () => {
+  it('returns null when authenticated and DB has no active cycle', async () => {
+    // Mock fallback only applies when unauthenticated; an authenticated read of an
+    // empty cycles table correctly yields null (you don't show fake data to a real user).
     const chain = makeChain({ data: null, error: null })
     mockAuth({ from: vi.fn().mockReturnValue(chain) } as never)
     const cycle = await getActiveCycle()
-    expect(cycle).not.toBeNull()
+    expect(cycle).toBeNull()
   })
 
   it('returns null on error', async () => {

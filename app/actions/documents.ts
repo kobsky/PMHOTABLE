@@ -54,7 +54,7 @@ export async function createDocument(input: {
 
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { data } = parsed
   const { error } = await auth.supabase.from('documents').insert({
@@ -77,7 +77,7 @@ export async function updateDocumentContent(
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('documents')
@@ -96,7 +96,7 @@ export async function updateDocumentStatus(
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('documents')
@@ -120,7 +120,7 @@ export async function updateDocument(
 
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('documents')
@@ -136,7 +136,7 @@ export async function updateDocument(
 export async function deleteDocument(id: string): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { error } = await auth.supabase
     .from('documents')

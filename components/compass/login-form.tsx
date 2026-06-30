@@ -15,6 +15,7 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'login' | 'reset'>('login')
   const [resetSent, setResetSent] = useState(false)
+  const [directResetLink, setDirectResetLink] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -33,8 +34,14 @@ export function LoginForm() {
     setLoading(false)
 
     if (error) {
-      toast.error('Nieprawidłowe dane logowania', {
-        description: error.message,
+      const isInvalidCreds =
+        error.message.toLowerCase().includes('invalid') ||
+        error.message.toLowerCase().includes('credentials') ||
+        error.message.toLowerCase().includes('password')
+      toast.error('Błąd logowania', {
+        description: isInvalidCreds
+          ? 'Nieprawidłowe hasło lub brak konta. Jeśli logujesz się po raz pierwszy, użyj opcji „Zapomniałem hasła" aby ustawić hasło.'
+          : error.message,
       })
       return
     }
@@ -50,7 +57,12 @@ export function LoginForm() {
     startTransition(async () => {
       const result = await requestPasswordReset({ email: email.trim().toLowerCase() })
       if ('error' in result) {
-        toast.error('Nie udało się wysłać linku', { description: result.error })
+        toast.error('Nie udało się wygenerować linku', { description: result.error })
+        return
+      }
+      if ('resetLink' in result) {
+        // Resend nie skonfigurowany — pokaż link bezpośrednio w UI
+        setDirectResetLink(result.resetLink)
         return
       }
       setResetSent(true)
@@ -62,7 +74,7 @@ export function LoginForm() {
       <div className="space-y-4">
         <button
           type="button"
-          onClick={() => { setMode('login'); setResetSent(false) }}
+          onClick={() => { setMode('login'); setResetSent(false); setDirectResetLink(null) }}
           className="flex items-center gap-1.5 text-xs text-compass-muted hover:text-compass-text transition-colors"
         >
           <ArrowLeft size={12} />
@@ -75,6 +87,22 @@ export function LoginForm() {
             <p className="text-xs text-compass-muted">
               Wysłaliśmy link do zmiany hasła na <span className="text-compass-text">{email}</span>.
               Link jest ważny przez 1 godzinę.
+            </p>
+          </div>
+        ) : directResetLink ? (
+          <div className="rounded border border-compass-warning/30 bg-compass-warning/5 px-4 py-3 space-y-2">
+            <p className="text-sm font-semibold text-compass-text">Link do resetu hasła</p>
+            <p className="text-xs text-compass-muted">
+              Email nie jest skonfigurowany. Kliknij poniższy link aby ustawić hasło:
+            </p>
+            <a
+              href={directResetLink}
+              className="block text-xs text-compass-accent hover:underline break-all"
+            >
+              Kliknij tutaj aby ustawić hasło →
+            </a>
+            <p className="text-2xs text-compass-dim">
+              Link jest ważny przez 1 godzinę. Aby włączyć wysyłkę email, ustaw RESEND_API_KEY w .env.local.
             </p>
           </div>
         ) : (

@@ -2,18 +2,45 @@
 // Wywołanie: POST /functions/v1/generate-weekly-summary
 // Cron: piątek 17:00 (konfiguracja w supabase/config.toml)
 // Deno runtime
+//
+// BEZPIECZEŃSTWO (BEZP-002):
+//  - Ta funkcja używa klucza `service_role` (omija RLS) i robi INSERT do `documents`,
+//    dlatego MUSI być wywoływana wyłącznie przez zaufany scheduler cron, nie z przeglądarki.
+//  - Wymagany jest współdzielony sekret w nagłówku `x-cron-secret` (lub `Authorization: Bearer <CRON_SECRET>`),
+//    porównywany z sekretem `CRON_SECRET` ustawionym w środowisku funkcji. Brak/niezgodność → 401.
+//  - CORS nie jest już `*` — to funkcja server-to-server, więc nie zezwalamy na żadne pochodzenie przeglądarki.
+//
+// WYMAGANE KROKI WDROŻENIOWE (do wykonania razem z `supabase functions deploy`):
+//  1. Ustawić sekret funkcji:        supabase secrets set CRON_SECRET=<losowy-długi-sekret>
+//  2. Włączyć `verify_jwt` w supabase/config.toml dla tej funkcji (defense-in-depth wobec sprawdzenia sekretu).
+//  3. Zaktualizować harmonogram cron, aby wysyłał nagłówek `x-cron-secret: <ten-sam-sekret>`
+//     (lub `Authorization: Bearer <ten-sam-sekret>`) — bez tego cron zacznie dostawać 401.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// CORS zawężony: to funkcja cron (server-to-server), nie endpoint przeglądarkowy.
+// Nie zwracamy `Access-Control-Allow-Origin: *` — żadne pochodzenie przeglądarki nie jest dozwolone.
+const responseHeaders = {
+  'Content-Type': 'application/json',
 }
 
 Deno.serve(async (req: Request) => {
-  // CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  // Brak preflight CORS: funkcja nie jest przeznaczona do wywołań cross-origin z przeglądarki.
+  // OPTIONS traktujemy jak każdą inną nieautoryzowaną metodę poniżej (wymóg sekretu).
+
+  // --- Weryfikacja współdzielonego sekretu PRZED utworzeniem klienta service_role ---
+  const cronSecret = Deno.env.get('CRON_SECRET')
+  const authHeader = req.headers.get('authorization')
+  const bearerToken = authHeader?.startsWith('Bearer ')
+    ? authHeader.slice('Bearer '.length).trim()
+    : null
+  const providedSecret = req.headers.get('x-cron-secret') ?? bearerToken
+
+  if (!cronSecret || !providedSecret || providedSecret !== cronSecret) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: responseHeaders }
+    )
   }
 
   try {
@@ -31,7 +58,7 @@ Deno.serve(async (req: Request) => {
     if (!profiles || profiles.length === 0) {
       return new Response(
         JSON.stringify({ error: 'Brak profili w bazie' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: responseHeaders }
       )
     }
 
@@ -90,13 +117,13 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({ success: true, document: data }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: responseHeaders }
     )
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     return new Response(
       JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: responseHeaders }
     )
   }
 })

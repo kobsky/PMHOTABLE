@@ -58,7 +58,7 @@ export async function createIdea(input: {
 
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const { data } = parsed
   const { error } = await auth.supabase.from('ideas').insert({
@@ -84,7 +84,7 @@ export async function updateIdeaStatus(
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   const patch: Record<string, unknown> = { status }
   if (status === 'rejected' && rejectionReason) {
@@ -112,7 +112,7 @@ export async function promoteIdeaToTask(
 ): Promise<{ error: string | null }> {
   const auth = await getAuthenticatedClient()
 
-  if (!auth) return { error: null }
+  if (!auth) return { error: 'Brak autoryzacji' }
 
   // Utwórz zadanie
   const { data: task, error: taskError } = await auth.supabase
