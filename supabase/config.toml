@@ -1,5 +1,4 @@
-[project]
-id = "hotable-compass"
+project_id = "hotable-compass"
 
 [api]
 enabled = true
