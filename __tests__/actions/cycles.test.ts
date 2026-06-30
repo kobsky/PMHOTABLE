@@ -11,6 +11,10 @@ import {
   updateCycle,
   activateCycle,
   deleteCycle,
+  addCycleLink,
+  removeCycleLink,
+  addUnavailableDate,
+  removeUnavailableDate,
 } from '@/app/actions/cycles'
 
 // ---------------------------------------------------------------------------
@@ -31,7 +35,10 @@ function makeChain(result: { data?: unknown; error?: unknown } = {}) {
 }
 
 function makeSupabase(result: { data?: unknown; error?: unknown } = {}) {
-  return { from: vi.fn().mockReturnValue(makeChain(result)) }
+  return {
+    from: vi.fn().mockReturnValue(makeChain(result)),
+    rpc: vi.fn().mockResolvedValue({ data: result.data ?? null, error: result.error ?? null }),
+  }
 }
 
 function mockAuth(supabase?: ReturnType<typeof makeSupabase>) {
@@ -175,6 +182,52 @@ describe('createCycle', () => {
     expect(result.error).toBeNull()
   })
 
+  it('includes tolerance_percent in the insert (LOG-011)', async () => {
+    const chain1 = makeChain({ data: null, error: null })
+    const chain2 = makeChain({ data: { id: 'new-cycle' }, error: null })
+    let callCount = 0
+    const sb = {
+      from: vi.fn(() => {
+        callCount++
+        return callCount === 1 ? chain1 : chain2
+      }),
+    }
+    mockAuth(sb as never)
+
+    await createCycle({
+      name: 'Sprint 1',
+      start_date: '2026-04-20',
+      end_date: '2026-05-03',
+      tolerance_percent: 15,
+    })
+
+    expect((chain2.insert as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
+      expect.objectContaining({ tolerance_percent: 15 })
+    )
+  })
+
+  it('omits tolerance_percent when not provided (DB default applies)', async () => {
+    const chain1 = makeChain({ data: null, error: null })
+    const chain2 = makeChain({ data: { id: 'new-cycle' }, error: null })
+    let callCount = 0
+    const sb = {
+      from: vi.fn(() => {
+        callCount++
+        return callCount === 1 ? chain1 : chain2
+      }),
+    }
+    mockAuth(sb as never)
+
+    await createCycle({
+      name: 'Sprint 1',
+      start_date: '2026-04-20',
+      end_date: '2026-05-03',
+    })
+
+    const insertArg = (chain2.insert as ReturnType<typeof vi.fn>).mock.calls[0][0]
+    expect(insertArg).not.toHaveProperty('tolerance_percent')
+  })
+
   it('returns Supabase error message on insert failure', async () => {
     const chain1 = makeChain({ data: null, error: null })
     const chain2 = makeChain({ data: null, error: { message: 'duplicate key' } })
@@ -235,21 +288,21 @@ describe('activateCycle', () => {
     expect((await activateCycle('c1')).error).toBe('Brak autoryzacji')
   })
 
-  it('returns error on deactivate failure', async () => {
-    const chain1 = makeChain({ error: { message: 'deactivate failed' } })
-    const chain2 = makeChain({ error: null })
-    let call = 0
-    const sb = { from: vi.fn(() => (++call === 1 ? chain1 : chain2)) }
-    mockAuth(sb as never)
-    const result = await activateCycle('c1')
-    expect(result.error).toBe('deactivate failed')
-  })
-
-  it('succeeds when both updates work', async () => {
-    const chain = makeChain({ error: null })
-    mockAuth({ from: vi.fn().mockReturnValue(chain) } as never)
+  it('calls the atomic activate_cycle RPC (LOG-003)', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
     const result = await activateCycle('c1')
     expect(result.error).toBeNull()
+    // One transactional RPC, not two separate UPDATEs (no zero/two-active window).
+    expect(sb.rpc).toHaveBeenCalledWith('activate_cycle', { p_cycle_id: 'c1' })
+    expect(sb.from).not.toHaveBeenCalled()
+  })
+
+  it('surfaces the RPC error', async () => {
+    const sb = makeSupabase({ error: { message: 'activate failed' } })
+    mockAuth(sb)
+    const result = await activateCycle('c1')
+    expect(result.error).toBe('activate failed')
   })
 })
 
@@ -279,5 +332,110 @@ describe('deleteCycle', () => {
     mockAuth(sb as never)
     const result = await deleteCycle('c1')
     expect(result.error).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// JSONB mutations via atomic RPC (LOG-004) — no read-modify-write
+// ---------------------------------------------------------------------------
+describe('addCycleLink', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns auth error when unauthenticated', async () => {
+    mockNoAuth()
+    expect((await addCycleLink('c1', { title: 'PR', url: 'https://x', label: 'doc' })).error).toBe(
+      'Brak autoryzacji'
+    )
+  })
+
+  it('appends via add_cycle_link RPC (not read-modify-write)', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await addCycleLink('c1', { title: 'PR', url: 'https://x', label: 'doc' })
+    expect(result.error).toBeNull()
+    expect(sb.from).not.toHaveBeenCalled()
+    expect(sb.rpc).toHaveBeenCalledWith(
+      'add_cycle_link',
+      expect.objectContaining({
+        p_cycle_id: 'c1',
+        p_link: expect.objectContaining({ title: 'PR', url: 'https://x', label: 'doc' }),
+      })
+    )
+  })
+
+  it('surfaces the RPC error', async () => {
+    const sb = makeSupabase({ error: { message: 'rpc boom' } })
+    mockAuth(sb)
+    expect((await addCycleLink('c1', { title: 'PR', url: 'https://x', label: 'doc' })).error).toBe(
+      'rpc boom'
+    )
+  })
+})
+
+describe('removeCycleLink', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns auth error when unauthenticated', async () => {
+    mockNoAuth()
+    expect((await removeCycleLink('c1', 'link-1')).error).toBe('Brak autoryzacji')
+  })
+
+  it('removes via remove_cycle_link RPC', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await removeCycleLink('c1', 'link-1')
+    expect(result.error).toBeNull()
+    expect(sb.from).not.toHaveBeenCalled()
+    expect(sb.rpc).toHaveBeenCalledWith('remove_cycle_link', {
+      p_cycle_id: 'c1',
+      p_link_id: 'link-1',
+    })
+  })
+})
+
+describe('addUnavailableDate', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns auth error when unauthenticated', async () => {
+    mockNoAuth()
+    expect((await addUnavailableDate('c1', 'u1', '2026-05-01', 'urlop')).error).toBe(
+      'Brak autoryzacji'
+    )
+  })
+
+  it('appends via add_unavailable_date RPC', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await addUnavailableDate('c1', 'u1', '2026-05-01', 'urlop')
+    expect(result.error).toBeNull()
+    expect(sb.from).not.toHaveBeenCalled()
+    expect(sb.rpc).toHaveBeenCalledWith('add_unavailable_date', {
+      p_cycle_id: 'c1',
+      p_user_id: 'u1',
+      p_date: '2026-05-01',
+      p_reason: 'urlop',
+    })
+  })
+})
+
+describe('removeUnavailableDate', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns auth error when unauthenticated', async () => {
+    mockNoAuth()
+    expect((await removeUnavailableDate('c1', 'u1', '2026-05-01')).error).toBe('Brak autoryzacji')
+  })
+
+  it('removes via remove_unavailable_date RPC', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await removeUnavailableDate('c1', 'u1', '2026-05-01')
+    expect(result.error).toBeNull()
+    expect(sb.from).not.toHaveBeenCalled()
+    expect(sb.rpc).toHaveBeenCalledWith('remove_unavailable_date', {
+      p_cycle_id: 'c1',
+      p_user_id: 'u1',
+      p_date: '2026-05-01',
+    })
   })
 })

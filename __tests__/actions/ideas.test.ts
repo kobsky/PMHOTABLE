@@ -29,7 +29,10 @@ function makeChain(result: { data?: unknown; error?: unknown } = {}) {
 }
 
 function makeSupabase(result: { data?: unknown; error?: unknown } = {}) {
-  return { from: vi.fn().mockReturnValue(makeChain(result)) }
+  return {
+    from: vi.fn().mockReturnValue(makeChain(result)),
+    rpc: vi.fn().mockResolvedValue({ data: result.data ?? null, error: result.error ?? null }),
+  }
 }
 
 function mockAuth(sb?: ReturnType<typeof makeSupabase>) {
@@ -176,6 +179,23 @@ describe('updateIdeaStatus', () => {
     )
   })
 
+  it('rejects status=rejected without a rejection reason (LOG-009)', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await updateIdeaStatus('idea-1', 'rejected')
+    expect(result.error).toBe('Powód odrzucenia jest wymagany przy odrzuceniu pomysłu')
+    // Validation fails before any DB write is attempted.
+    expect(sb.from).not.toHaveBeenCalled()
+  })
+
+  it('rejects status=rejected with a blank rejection reason (LOG-009)', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await updateIdeaStatus('idea-1', 'rejected', '   ')
+    expect(result.error).not.toBeNull()
+    expect(sb.from).not.toHaveBeenCalled()
+  })
+
   it('returns error on Supabase failure', async () => {
     mockAuth(makeSupabase({ error: { message: 'update failed' } }))
     const result = await updateIdeaStatus('idea-1', 'accepted')
@@ -189,41 +209,78 @@ describe('updateIdeaStatus', () => {
 describe('promoteIdeaToTask', () => {
   beforeEach(() => vi.clearAllMocks())
 
+  // Valid v4 UUIDs (version nibble 4, variant nibble 8) — PromoteIdeaSchema
+  // requires uuid() for ideaId and projectId; Zod v4 enforces the RFC variant.
+  const IDEA_ID = '11111111-1111-4111-8111-111111111111'
+  const PROJECT_ID = '22222222-2222-4222-8222-222222222222'
+
   it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
-    const result = await promoteIdeaToTask('idea-1', {
+    const result = await promoteIdeaToTask(IDEA_ID, {
       title: 'Promoted task',
-      projectId: 'proj-1',
+      projectId: PROJECT_ID,
     })
     expect(result).toEqual({ error: 'Brak autoryzacji' })
   })
 
-  it('returns task creation error if insert fails', async () => {
-    const taskChain = makeChain({ data: null, error: { message: 'task insert failed' } })
-    const sb = { from: vi.fn().mockReturnValue(taskChain) }
-    mockAuth(sb as never)
+  it('rejects a non-uuid idea/project id (validation before DB)', async () => {
+    const sb = makeSupabase()
+    mockAuth(sb)
     const result = await promoteIdeaToTask('idea-1', {
       title: 'Task',
       projectId: 'proj-1',
     })
-    expect(result.error).toBe('task insert failed')
+    expect(result.error).not.toBeNull()
+    expect(sb.rpc).not.toHaveBeenCalled()
   })
 
-  it('marks idea as converted after task creation', async () => {
-    const taskChain = makeChain({ data: { id: 'new-task-id' }, error: null })
-    const ideaChain = makeChain({ error: null })
-    let call = 0
-    const sb = { from: vi.fn(() => (++call === 1 ? taskChain : ideaChain)) }
-    mockAuth(sb as never)
-    const result = await promoteIdeaToTask('idea-1', {
+  it('calls promote_idea_to_task RPC with the FK-setting args (LOG-005)', async () => {
+    const sb = makeSupabase({ data: 'new-task-id', error: null })
+    mockAuth(sb)
+    const result = await promoteIdeaToTask(IDEA_ID, {
       title: 'Task',
-      projectId: 'proj-1',
+      projectId: PROJECT_ID,
+      priority: 'high',
     })
     expect(result.error).toBeNull()
-    // Second from() call updates the idea to 'converted'
-    const secondChain = ideaChain
-    expect((secondChain.update as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'converted' })
+    // The atomic RPC sets promoted_to_task_id + status='converted' server-side.
+    expect(sb.rpc).toHaveBeenCalledWith('promote_idea_to_task', {
+      p_idea_id: IDEA_ID,
+      p_title: 'Task',
+      p_project_id: PROJECT_ID,
+      p_priority: 'high',
+      p_assignee_id: 'user-1',
+    })
+  })
+
+  it('defaults priority to medium when omitted', async () => {
+    const sb = makeSupabase({ data: 'new-task-id', error: null })
+    mockAuth(sb)
+    await promoteIdeaToTask(IDEA_ID, { title: 'Task', projectId: PROJECT_ID })
+    expect(sb.rpc).toHaveBeenCalledWith(
+      'promote_idea_to_task',
+      expect.objectContaining({ p_priority: 'medium' })
     )
+  })
+
+  it('surfaces the RPC error', async () => {
+    const sb = makeSupabase({ data: null, error: { message: 'rpc failed' } })
+    mockAuth(sb)
+    const result = await promoteIdeaToTask(IDEA_ID, {
+      title: 'Task',
+      projectId: PROJECT_ID,
+    })
+    expect(result.error).toBe('rpc failed')
+  })
+
+  it('returns a friendly error when the idea is missing or already converted', async () => {
+    // RPC returns null id → idea did not exist or was already promoted.
+    const sb = makeSupabase({ data: null, error: null })
+    mockAuth(sb)
+    const result = await promoteIdeaToTask(IDEA_ID, {
+      title: 'Task',
+      projectId: PROJECT_ID,
+    })
+    expect(result.error).toBe('Pomysł nie istnieje lub został już przeniesiony do zadania')
   })
 })

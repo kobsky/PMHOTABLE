@@ -21,6 +21,7 @@ import {
   createSubtask,
   bulkUpdateTasks,
   reorderColumn,
+  reorderSubtasks,
   getDeletedTasks,
   restoreTask,
 } from '@/app/actions/tasks'
@@ -41,7 +42,7 @@ function makeChain(result: { data?: unknown; error?: unknown; count?: number } =
     single: vi.fn().mockResolvedValue(r),
     maybeSingle: vi.fn().mockResolvedValue(r),
   }
-  for (const m of ['select', 'insert', 'update', 'delete', 'eq', 'neq', 'is', 'not', 'in', 'filter', 'order', 'limit']) {
+  for (const m of ['select', 'insert', 'upsert', 'update', 'delete', 'eq', 'neq', 'is', 'not', 'in', 'filter', 'order', 'limit']) {
     chain[m] = vi.fn().mockReturnValue(chain)
   }
   return chain
@@ -288,6 +289,47 @@ describe('reorderColumn', () => {
   it('returns auth error when unauthenticated', async () => {
     mockNoAuth()
     expect(await reorderColumn(['t1', 't2'])).toEqual({ error: 'Brak autoryzacji' })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// reorderSubtasks (LOG-006) — single batch upsert, auth-guarded
+// ---------------------------------------------------------------------------
+describe('reorderSubtasks', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns auth error when unauthenticated', async () => {
+    mockNoAuth()
+    expect(await reorderSubtasks('parent-1', ['s1', 's2'])).toEqual({ error: 'Brak autoryzacji' })
+  })
+
+  it('returns { error: null } for empty array without querying', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await reorderSubtasks('parent-1', [])
+    expect(result).toEqual({ error: null })
+    expect(sb.from).not.toHaveBeenCalled()
+  })
+
+  it('persists order in ONE batch upsert with position 0..n', async () => {
+    const sb = makeSupabase({ error: null })
+    mockAuth(sb)
+    const result = await reorderSubtasks('parent-1', ['s2', 's0', 's1'])
+    expect(result.error).toBeNull()
+    const chain = sb.from.mock.results[0].value as ReturnType<typeof makeChain>
+    const upsert = chain.upsert as ReturnType<typeof vi.fn>
+    // Exactly one batch call, not N separate updates.
+    expect(upsert).toHaveBeenCalledTimes(1)
+    expect(upsert).toHaveBeenCalledWith([
+      { id: 's2', position: 0 },
+      { id: 's0', position: 1 },
+      { id: 's1', position: 2 },
+    ])
+  })
+
+  it('returns error on Supabase failure', async () => {
+    mockAuth(makeSupabase({ error: { message: 'reorder failed' } }))
+    expect((await reorderSubtasks('parent-1', ['s1'])).error).toBe('reorder failed')
   })
 })
 
