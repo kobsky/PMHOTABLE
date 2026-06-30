@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cache } from 'react'
-import type { DbCycle, SprintLink, SprintLinkLabel, UnavailabilityEntry } from '@/lib/supabase/types'
+import type { DbCycle, SprintLink, SprintLinkLabel } from '@/lib/supabase/types'
 import { MOCK_CYCLE, MOCK_CYCLES } from '@/lib/mock-data'
 
 // ---------------------------------------------------------------------------
@@ -106,12 +106,22 @@ export async function createCycle(
       end_date: data.end_date,
       goal: data.goal ?? null,
       velocity_planned: data.velocity_planned ?? null,
+      // tolerance_percent jest NOT NULL DEFAULT 20 (017). Pomijamy klucz, gdy nie
+      // podano, aby zadziałał default bazy — jawny NULL łamałby ograniczenie.
+      ...(data.tolerance_percent != null ? { tolerance_percent: data.tolerance_percent } : {}),
       is_active: isActive,
     })
     .select()
     .single()
 
-  if (error) return { error: error.message }
+  if (error) {
+    // Naruszenie partial-unique „jeden aktywny sprint" (race przy równoległym
+    // tworzeniu aktywnego cyklu) — zwróć przyjazny komunikat zamiast surowego błędu.
+    if (error.code === '23505') {
+      return { error: 'Sprint już aktywny / naruszenie unikalności' }
+    }
+    return { error: error.message }
+  }
 
   revalidatePath('/board')
   revalidatePath('/backlog')
@@ -147,18 +157,9 @@ export async function activateCycle(cycleId: string): Promise<{ error: string | 
   const auth = await getAuthenticatedClient()
   if (!auth) return { error: 'Brak autoryzacji' }
 
-  // Deactivate all, then activate the chosen one
-  const { error: deactivateErr } = await auth.supabase
-    .from('cycles')
-    .update({ is_active: false })
-    .neq('id', cycleId)
-
-  if (deactivateErr) return { error: deactivateErr.message }
-
-  const { error } = await auth.supabase
-    .from('cycles')
-    .update({ is_active: true })
-    .eq('id', cycleId)
+  // Atomowo: deaktywuj wszystkie i aktywuj wybrany w jednej transakcji (LOG-003),
+  // bez okna z dwoma aktywnymi cyklami ani z zerem aktywnych po awarii.
+  const { error } = await auth.supabase.rpc('activate_cycle', { p_cycle_id: cycleId })
 
   if (error) return { error: error.message }
 
@@ -298,15 +299,6 @@ export async function addCycleLink(
   const auth = await getAuthenticatedClient()
   if (!auth) return { error: 'Brak autoryzacji' }
 
-  const { data: cycle, error: fetchErr } = await auth.supabase
-    .from('cycles')
-    .select('sprint_links')
-    .eq('id', cycleId)
-    .single()
-
-  if (fetchErr) return { error: fetchErr.message }
-
-  const existing: SprintLink[] = (cycle?.sprint_links as SprintLink[] | null) ?? []
   const newLink: SprintLink = {
     id: crypto.randomUUID(),
     title: link.title,
@@ -314,10 +306,11 @@ export async function addCycleLink(
     label: link.label as SprintLinkLabel,
   }
 
-  const { error } = await auth.supabase
-    .from('cycles')
-    .update({ sprint_links: [...existing, newLink] })
-    .eq('id', cycleId)
+  // Atomowy append po stronie bazy (LOG-004) — bez read-modify-write na JSONB.
+  const { error } = await auth.supabase.rpc('add_cycle_link', {
+    p_cycle_id: cycleId,
+    p_link: newLink,
+  })
 
   if (error) return { error: error.message }
 
@@ -332,22 +325,11 @@ export async function removeCycleLink(
   const auth = await getAuthenticatedClient()
   if (!auth) return { error: 'Brak autoryzacji' }
 
-  const { data: cycle, error: fetchErr } = await auth.supabase
-    .from('cycles')
-    .select('sprint_links')
-    .eq('id', cycleId)
-    .single()
-
-  if (fetchErr) return { error: fetchErr.message }
-
-  const updated = ((cycle?.sprint_links as SprintLink[] | null) ?? []).filter(
-    (l) => l.id !== linkId
-  )
-
-  const { error } = await auth.supabase
-    .from('cycles')
-    .update({ sprint_links: updated })
-    .eq('id', cycleId)
+  // Atomowe usunięcie linku po id po stronie bazy (LOG-004).
+  const { error } = await auth.supabase.rpc('remove_cycle_link', {
+    p_cycle_id: cycleId,
+    p_link_id: linkId,
+  })
 
   if (error) return { error: error.message }
 
@@ -368,29 +350,14 @@ export async function addUnavailableDate(
   const auth = await getAuthenticatedClient()
   if (!auth) return { error: 'Brak autoryzacji' }
 
-  const { data: cycle, error: fetchErr } = await auth.supabase
-    .from('cycles')
-    .select('unavailability')
-    .eq('id', cycleId)
-    .single()
-
-  if (fetchErr) return { error: fetchErr.message }
-
-  const unavailability: Record<string, UnavailabilityEntry[]> =
-    (cycle?.unavailability as Record<string, UnavailabilityEntry[]> | null) ?? {}
-
-  const userEntries = unavailability[userId] ?? []
-  if (userEntries.some((e) => e.date === date)) return { error: null } // already set
-
-  const updated = {
-    ...unavailability,
-    [userId]: [...userEntries, { date, reason }],
-  }
-
-  const { error } = await auth.supabase
-    .from('cycles')
-    .update({ unavailability: updated })
-    .eq('id', cycleId)
+  // Atomowy append wpisu niedostępności (LOG-004); de-duplikacja po dacie
+  // odbywa się po stronie funkcji bazodanowej.
+  const { error } = await auth.supabase.rpc('add_unavailable_date', {
+    p_cycle_id: cycleId,
+    p_user_id: userId,
+    p_date: date,
+    p_reason: reason,
+  })
 
   if (error) return { error: error.message }
 
@@ -406,26 +373,12 @@ export async function removeUnavailableDate(
   const auth = await getAuthenticatedClient()
   if (!auth) return { error: 'Brak autoryzacji' }
 
-  const { data: cycle, error: fetchErr } = await auth.supabase
-    .from('cycles')
-    .select('unavailability')
-    .eq('id', cycleId)
-    .single()
-
-  if (fetchErr) return { error: fetchErr.message }
-
-  const unavailability: Record<string, UnavailabilityEntry[]> =
-    (cycle?.unavailability as Record<string, UnavailabilityEntry[]> | null) ?? {}
-
-  const updated = {
-    ...unavailability,
-    [userId]: (unavailability[userId] ?? []).filter((e) => e.date !== date),
-  }
-
-  const { error } = await auth.supabase
-    .from('cycles')
-    .update({ unavailability: updated })
-    .eq('id', cycleId)
+  // Atomowe usunięcie wpisu niedostępności dla daty (LOG-004).
+  const { error } = await auth.supabase.rpc('remove_unavailable_date', {
+    p_cycle_id: cycleId,
+    p_user_id: userId,
+    p_date: date,
+  })
 
   if (error) return { error: error.message }
 

@@ -189,3 +189,71 @@ export interface TaskWithRelations extends DbTask {
 export interface IdeaWithAuthor extends DbIdea {
   author: DbUser
 }
+
+// ---------------------------------------------------------------------------
+// RPC (Postgres Functions) — DODANE RĘCZNIE dla migracji 019_tier1_atomicity.sql
+// ---------------------------------------------------------------------------
+// Brak żywej bazy w tym środowisku → nie można uruchomić
+// `supabase gen types typescript`. Poniższe sygnatury zostały dodane ręcznie,
+// aby wywołania auth.supabase.rpc(...) w Server Actions były spójne z funkcjami
+// SQL z migracji 019. PO deployu wygeneruj typy ponownie i zsynchronizuj.
+//
+// Kształt zgodny z typowanym klientem Supabase: Database['public']['Functions'].
+// (Klient w lib/supabase/server.ts jest obecnie nieparametryzowany typem
+// Database, więc rpc() nie egzekwuje tego na poziomie kompilatora — te typy
+// służą jako kontrakt referencyjny dla agentów podłączających akcje.)
+export interface Database {
+  public: {
+    Functions: {
+      // LOG-003 — atomowa aktywacja cyklu (deaktywuj wszystkie → aktywuj jeden)
+      activate_cycle: {
+        Args: { p_cycle_id: string }
+        Returns: undefined
+      }
+      // LOG-004 — atomowy append linku sprintu (p_link = { id,title,url,label })
+      add_cycle_link: {
+        Args: { p_cycle_id: string; p_link: SprintLink }
+        Returns: undefined
+      }
+      // LOG-004 — atomowe usunięcie linku sprintu po id
+      remove_cycle_link: {
+        Args: { p_cycle_id: string; p_link_id: string }
+        Returns: undefined
+      }
+      // LOG-004 — atomowy append wpisu niedostępności użytkownika
+      add_unavailable_date: {
+        Args: {
+          p_cycle_id: string
+          p_user_id: string
+          p_date: string
+          p_reason: string
+        }
+        Returns: undefined
+      }
+      // LOG-004 — atomowe usunięcie wpisu niedostępności użytkownika dla daty
+      remove_unavailable_date: {
+        Args: {
+          p_cycle_id: string
+          p_user_id: string
+          p_date: string
+        }
+        Returns: undefined
+      }
+      // LOG-005 — atomowy promote pomysłu → zadanie; zwraca id zadania
+      // lub null, jeśli pomysł nie istnieje / był już przeniesiony.
+      promote_idea_to_task: {
+        Args: {
+          p_idea_id: string
+          p_title: string
+          p_project_id: string
+          p_priority: TaskPriority
+          p_assignee_id: string | null
+        }
+        Returns: string | null
+      }
+    }
+  }
+}
+
+// Wygodny alias dla agentów podłączających akcje do RPC.
+export type DbFunctions = Database['public']['Functions']

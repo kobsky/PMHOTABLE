@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   DragDropContext,
@@ -20,7 +20,7 @@ import { WipWarning } from './wip-warning'
 import { QuickAddTask } from './quick-add-task'
 import { updateTaskStatus, reorderColumn } from '@/app/actions/tasks'
 import { updateCycleNotes, addCycleLink, removeCycleLink, addUnavailableDate, removeUnavailableDate } from '@/app/actions/cycles'
-import type { TaskWithRelations, TaskStatus, DbProject, DbUser, DbCycle, SprintLink, SprintLinkLabel, UnavailabilityEntry } from '@/lib/supabase/types'
+import type { TaskWithRelations, DbTask, TaskStatus, DbProject, DbUser, DbCycle, SprintLink, SprintLinkLabel, UnavailabilityEntry } from '@/lib/supabase/types'
 import { createClient } from '@/lib/supabase/client'
 import { Plus, TrendingUp, StickyNote, Users, ChevronDown, ChevronUp, ExternalLink, X, Link2, AlertTriangle } from 'lucide-react'
 
@@ -54,6 +54,49 @@ export function SprintBoard({ initialTasks, cycleId, projects, profiles, cycles,
   const [selectedTask, setSelectedTask] = useState<TaskWithRelations | null>(null)
   const router = useRouter()
 
+  // Mapy id→encja do re-rozwiązywania relacji (project/assignee) z propsów,
+  // bez castowania surowego wiersza na typ z relacjami.
+  const projectsById = useMemo(
+    () => new Map(projects.map((p) => [p.id, p])),
+    [projects]
+  )
+  const profilesById = useMemo(
+    () => new Map(profiles.map((p) => [p.id, p])),
+    [profiles]
+  )
+
+  // Łączy istniejący task ze scalarnym patchem (np. surowy wiersz z Realtime
+  // lub patch z modala) i ODŚWIEŻA zagnieżdżone relacje na podstawie id-map.
+  // Surowy wiersz nie zawiera project/assignee/subtasks — zachowujemy je z
+  // dotychczasowego stanu, a gdy zmienił się project_id/assignee_id,
+  // rozwiązujemy nowy obiekt z propsów (kolor/nazwa aktualne natychmiast).
+  const mergeTaskRow = useCallback(
+    (existing: TaskWithRelations, patch: Partial<TaskWithRelations>): TaskWithRelations => {
+      const merged: TaskWithRelations = {
+        ...existing,
+        ...patch,
+        // Surowy wiersz nie ma relacji — przywróć istniejące jako bazę.
+        project: existing.project,
+        assignee: existing.assignee,
+        subtasks: existing.subtasks,
+      }
+
+      // Re-resolve project gdy zmieniło się project_id.
+      if (patch.project_id !== undefined && patch.project_id !== existing.project_id) {
+        const resolved = projectsById.get(merged.project_id)
+        if (resolved) merged.project = resolved
+      }
+
+      // Re-resolve assignee gdy zmieniło się assignee_id.
+      if (patch.assignee_id !== undefined && patch.assignee_id !== existing.assignee_id) {
+        merged.assignee = merged.assignee_id ? profilesById.get(merged.assignee_id) ?? null : null
+      }
+
+      return merged
+    },
+    [projectsById, profilesById]
+  )
+
   // Realtime subscription — odświeża board gdy inny user zmieni dane
   useEffect(() => {
     const supabase = createClient()
@@ -70,12 +113,13 @@ export function SprintBoard({ initialTasks, cycleId, projects, profiles, cycles,
         },
         (payload) => {
           if (payload.eventType === 'UPDATE') {
+            // payload.new to SUROWY wiersz (DbTask) bez relacji. Nie castujemy go
+            // na TaskWithRelations — wyłuskujemy pola scalarne i re-rozwiązujemy
+            // project/assignee przez mergeTaskRow (id-mapy). Brak wiersza w stanie
+            // (np. task spoza aktualnego widoku) → ignoruj, refetch przy INSERT.
+            const row = payload.new as DbTask
             setTasks((prev) =>
-              prev.map((t) =>
-                t.id === payload.new.id
-                  ? { ...t, ...(payload.new as Partial<TaskWithRelations>) }
-                  : t
-              )
+              prev.map((t) => (t.id === row.id ? mergeTaskRow(t, row) : t))
             )
           }
           if (payload.eventType === 'INSERT') {
@@ -92,9 +136,13 @@ export function SprintBoard({ initialTasks, cycleId, projects, profiles, cycles,
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [cycleId, router])
+  }, [cycleId, router, mergeTaskRow])
 
-  // Sync state when server re-renders after router.refresh()
+  // Sync state gdy serwer ponownie wyrenderuje po router.refresh() (INSERT/refetch).
+  // initialTasks niesie ŚWIEŻE relacje z serwera, więc bezpiecznie nadpisuje stan.
+  // Echo własnego optimistic update z Realtime nie zmienia referencji initialTasks
+  // (to ten sam props), więc ten efekt się nie odpala ponownie i nie klobuje
+  // świeżego stanu — brak migotania.
   useEffect(() => {
     setTasks(initialTasks)
   }, [initialTasks])
@@ -317,10 +365,13 @@ export function SprintBoard({ initialTasks, cycleId, projects, profiles, cycles,
             setSelectedTask(null)
           }}
           onUpdated={(taskId, patch) => {
+            // Patch z modala niesie scalarne project_id/assignee_id — mergeTaskRow
+            // re-rozwiązuje zagnieżdżone project/assignee z id-map, więc wiersz od
+            // razu pokazuje nowy kolor/nazwę (bez czekania na refetch).
             setTasks((prev) =>
-              prev.map((t) => (t.id === taskId ? { ...t, ...patch } : t))
+              prev.map((t) => (t.id === taskId ? mergeTaskRow(t, patch) : t))
             )
-            setSelectedTask((prev) => prev ? { ...prev, ...patch } : null)
+            setSelectedTask((prev) => (prev ? mergeTaskRow(prev, patch) : null))
           }}
         />
       )}

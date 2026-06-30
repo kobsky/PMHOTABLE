@@ -51,10 +51,10 @@ export async function getGoalById(id: string): Promise<DbGoal | null> {
     .from('goals')
     .select('*')
     .eq('id', id)
-    .single()
+    .maybeSingle()
 
   if (error) { console.error('getGoalById:', error.message); return null }
-  return data as DbGoal
+  return data as DbGoal | null
 }
 
 export async function updateGoal(
