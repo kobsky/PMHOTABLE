@@ -1,5 +1,11 @@
-// Typy generowane z Supabase — nie edytuj ręcznie
-// Aby zaktualizować: supabase gen types typescript --local > lib/supabase/types.ts
+// ⚠️ PLIK PISANY RĘCZNIE — NIE rób `supabase gen types ... > lib/supabase/types.ts`!
+// Całe repo importuje aliasy (DbUser/DbTask/DbCycle/TaskWithRelations/AiFeature/
+// Database.Functions), których `gen types` NIE produkuje — nadpisanie wywala
+// build (~90 błędów TS2305). To NIE jest plik generowany.
+// Sprawdzenie zgodności ze schematem: generuj do pliku TYMCZASOWEGO i porównaj,
+// NIE nadpisuj:  supabase gen types typescript --linked > /tmp/gen.ts  (potem diff)
+// Zweryfikowane vs żywa baza (ref bgiezcdacrxnpzvwpdzu) po migracji 020:
+// wsjf_*, RPC z 019, story_points/size/raci, AiFeature(6) — zgodne.
 
 // task_status: migracja 001 + 'in_review' dodane w migracji 004
 export type TaskStatus = 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled'
@@ -111,7 +117,7 @@ export interface DbTask {
   // migracja 020 (U5 — SAFe WSJF, wspomaganie decyzji, BEZ LLM/ML)
   // Cztery komponenty WSJF: CoD = user_value + time_criticality + risk_reduction,
   // mianownik = job_size. Wszystkie nullowalne (zadania nieoszacowane).
-  // DODANE RĘCZNIE — wygeneruj typy ponownie po deployu migracji 020.
+  // DODANE RĘCZNIE; zweryfikowane vs żywa baza po deployu 020 (NIE nadpisuj gen types).
   wsjf_user_value?: number | null
   wsjf_time_criticality?: number | null
   wsjf_risk_reduction?: number | null
@@ -214,7 +220,7 @@ export interface IdeaWithAuthor extends DbIdea {
 // Brak żywej bazy w tym środowisku → nie można uruchomić
 // `supabase gen types typescript`. Poniższe sygnatury zostały dodane ręcznie,
 // aby wywołania auth.supabase.rpc(...) w Server Actions były spójne z funkcjami
-// SQL z migracji 019. PO deployu wygeneruj typy ponownie i zsynchronizuj.
+// SQL z migracji 019. Zweryfikowane vs żywa baza po deployu (NIE nadpisuj gen types).
 //
 // Kształt zgodny z typowanym klientem Supabase: Database['public']['Functions'].
 // (Klient w lib/supabase/server.ts jest obecnie nieparametryzowany typem

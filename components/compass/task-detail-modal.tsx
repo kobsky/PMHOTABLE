@@ -151,9 +151,32 @@ export function TaskDetailModal({
 
   // Move to sprint
   const [showMoveToSprint, setShowMoveToSprint] = useState(false)
+  const moveToSprintRef = useRef<HTMLDivElement>(null)
 
   // Templates
   const [showTemplates, setShowTemplates] = useState(false)
+  const templatesRef = useRef<HTMLDivElement>(null)
+
+  // WIZ-006 — Esc + click-outside dismissal for the two inline menus
+  // (templates, move-to-sprint). Selection logic is unchanged; this only
+  // closes the open menu and is fully keyboard-operable.
+  useEffect(() => {
+    if (!showTemplates && !showMoveToSprint) return
+    function handlePointer(e: MouseEvent) {
+      const target = e.target as Node
+      if (showTemplates && templatesRef.current && !templatesRef.current.contains(target)) setShowTemplates(false)
+      if (showMoveToSprint && moveToSprintRef.current && !moveToSprintRef.current.contains(target)) setShowMoveToSprint(false)
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') { setShowTemplates(false); setShowMoveToSprint(false) }
+    }
+    document.addEventListener('mousedown', handlePointer)
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('mousedown', handlePointer)
+      document.removeEventListener('keydown', handleKey)
+    }
+  }, [showTemplates, showMoveToSprint])
 
   // Sync state when task prop changes (e.g. modal reused for another task)
   useEffect(() => {
@@ -729,10 +752,12 @@ export function TaskDetailModal({
               <div className="flex items-center justify-between mb-1.5">
                 <p className="compass-label">Opis / Instrukcje</p>
                 {/* Templates dropdown */}
-                <div className="relative">
+                <div className="relative" ref={templatesRef}>
                   <button
                     type="button"
                     onClick={() => setShowTemplates((v) => !v)}
+                    aria-haspopup="menu"
+                    aria-expanded={showTemplates}
                     className="flex items-center gap-1 text-2xs font-mono text-compass-dim hover:text-compass-muted transition-colors px-1.5 py-0.5 rounded-[3px] hover:bg-compass-surface border border-transparent hover:border-compass-border"
                   >
                     <FileText size={10} />
@@ -740,13 +765,14 @@ export function TaskDetailModal({
                     <ChevronDown size={9} />
                   </button>
                   {showTemplates && (
-                    <div className="absolute right-0 top-full mt-1 w-44 bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-20 overflow-hidden">
+                    <div role="menu" className="absolute right-0 top-full mt-1 w-44 bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-20 overflow-hidden">
                       {TASK_TEMPLATES.map((tpl) => (
                         <button
                           key={tpl.name}
                           type="button"
+                          role="menuitem"
                           onClick={() => applyTemplate(tpl)}
-                          className="w-full text-left px-3 py-2 text-xs text-compass-muted hover:bg-compass-surface hover:text-compass-text transition-colors"
+                          className="w-full text-left px-3 py-2 text-xs text-compass-muted hover:bg-compass-surface hover:text-compass-text transition-colors focus:outline-none focus:bg-compass-surface focus:text-compass-text"
                         >
                           {tpl.name}
                         </button>
@@ -974,22 +1000,25 @@ export function TaskDetailModal({
               </button>
 
               {/* Move to Sprint */}
-              <div className="relative">
+              <div className="relative" ref={moveToSprintRef}>
                 <button
                   type="button"
                   onClick={() => setShowMoveToSprint((v) => !v)}
                   disabled={isPending}
+                  aria-haspopup="menu"
+                  aria-expanded={showMoveToSprint}
                   className="text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded-[3px] text-compass-dim hover:text-compass-muted hover:bg-compass-surface transition-colors"
                 >
                   <MoveRight size={12} strokeWidth={1.5} />
                   Przenieś do sprintu
                 </button>
                 {showMoveToSprint && (
-                  <div className="absolute bottom-full mb-1 left-0 w-52 bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-20 overflow-hidden">
+                  <div role="menu" className="absolute bottom-full mb-1 left-0 w-52 bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-20 overflow-hidden">
                     {cycles.filter((c) => c.id !== task.cycle_id).map((c) => (
                       <button
                         key={c.id}
                         type="button"
+                        role="menuitem"
                         onClick={() => {
                           setShowMoveToSprint(false)
                           startTransition(async () => {
@@ -1002,7 +1031,7 @@ export function TaskDetailModal({
                             }
                           })
                         }}
-                        className="w-full text-left px-3 py-2 text-xs text-compass-muted hover:bg-compass-surface-3 hover:text-compass-text transition-colors"
+                        className="w-full text-left px-3 py-2 text-xs text-compass-muted hover:bg-compass-surface-3 hover:text-compass-text transition-colors focus:outline-none focus:bg-compass-surface-3 focus:text-compass-text"
                       >
                         {c.name}{c.is_active ? ' ✦' : ''}
                       </button>
@@ -1063,6 +1092,89 @@ interface StatusOption {
   color: string
 }
 
+// ---------------------------------------------------------------------------
+// useListboxKeyboard — shared keyboard behaviour for the custom dropdowns
+// (WIZ-006). Provides Esc to close, Arrow/Home/End to move the highlighted
+// option, Enter/Space to commit, and focus restoration to the trigger. Pure
+// a11y wiring — does not change selection semantics; commit still goes through
+// the caller-supplied onSelect.
+// ---------------------------------------------------------------------------
+
+function useListboxKeyboard({
+  open,
+  setOpen,
+  optionCount,
+  selectedIndex,
+  onSelect,
+}: {
+  open: boolean
+  setOpen: (v: boolean) => void
+  optionCount: number
+  selectedIndex: number
+  onSelect: (index: number) => void
+}) {
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(selectedIndex)
+
+  // When the list opens, start the highlight on the current selection.
+  useEffect(() => {
+    if (open) setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0)
+  }, [open, selectedIndex])
+
+  // Move DOM focus to the highlighted option so screen readers announce it.
+  useEffect(() => {
+    if (!open) return
+    const el = listRef.current?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex]
+    el?.focus()
+  }, [open, activeIndex])
+
+  function onTriggerKeyDown(e: React.KeyboardEvent) {
+    if (!open && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      setOpen(true)
+    }
+  }
+
+  function onListKeyDown(e: React.KeyboardEvent) {
+    switch (e.key) {
+      case 'Escape':
+        e.preventDefault()
+        e.stopPropagation() // Esc zamyka tylko dropdown, nie cały modal (Radix Dialog)
+        setOpen(false)
+        triggerRef.current?.focus()
+        break
+      case 'ArrowDown':
+        e.preventDefault()
+        setActiveIndex((i) => (i + 1) % optionCount)
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setActiveIndex((i) => (i - 1 + optionCount) % optionCount)
+        break
+      case 'Home':
+        e.preventDefault()
+        setActiveIndex(0)
+        break
+      case 'End':
+        e.preventDefault()
+        setActiveIndex(optionCount - 1)
+        break
+      case 'Enter':
+      case ' ':
+        e.preventDefault()
+        onSelect(activeIndex)
+        triggerRef.current?.focus()
+        break
+      case 'Tab':
+        setOpen(false)
+        break
+    }
+  }
+
+  return { triggerRef, listRef, activeIndex, onTriggerKeyDown, onListKeyDown }
+}
+
 function MetaSelect({ value, onChange, options }: {
   value: string
   onChange: (v: string) => void
@@ -1072,6 +1184,14 @@ function MetaSelect({ value, onChange, options }: {
   const ref = useRef<HTMLDivElement>(null)
   const current = options.find((o) => o.value === value) ?? options[0]
   const Icon = current.icon
+  const selectedIndex = options.findIndex((o) => o.value === value)
+  const { triggerRef, listRef, activeIndex, onTriggerKeyDown, onListKeyDown } = useListboxKeyboard({
+    open,
+    setOpen,
+    optionCount: options.length,
+    selectedIndex,
+    onSelect: (i) => { onChange(options[i].value); setOpen(false) },
+  })
 
   useEffect(() => {
     if (!open) return
@@ -1085,8 +1205,12 @@ function MetaSelect({ value, onChange, options }: {
   return (
     <div ref={ref} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={onTriggerKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         className={cn(
           'flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] text-xs',
           'border border-compass-border bg-compass-surface hover:border-compass-border-strong',
@@ -1098,19 +1222,29 @@ function MetaSelect({ value, onChange, options }: {
         <ChevronDown size={10} className="text-compass-dim" />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 left-0 min-w-[140px] bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-30 overflow-hidden">
-          {options.map((o) => {
+        <div
+          ref={listRef}
+          role="listbox"
+          tabIndex={-1}
+          onKeyDown={onListKeyDown}
+          className="absolute top-full mt-1 left-0 min-w-[140px] bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-30 overflow-hidden focus:outline-none"
+        >
+          {options.map((o, i) => {
             const OIcon = o.icon
             return (
               <button
                 key={o.value}
                 type="button"
+                role="option"
+                aria-selected={o.value === value}
+                tabIndex={-1}
                 onClick={() => { onChange(o.value); setOpen(false) }}
                 className={cn(
-                  'w-full text-left px-3 py-1.5 text-xs flex items-center gap-2 transition-colors',
+                  'w-full text-left px-3 py-1.5 text-xs flex items-center gap-2 transition-colors focus:outline-none',
                   o.value === value
                     ? 'text-compass-text bg-compass-surface-3'
-                    : 'text-compass-muted hover:bg-compass-surface hover:text-compass-text'
+                    : 'text-compass-muted hover:bg-compass-surface hover:text-compass-text',
+                  i === activeIndex && o.value !== value && 'bg-compass-surface text-compass-text'
                 )}
               >
                 <OIcon size={11} strokeWidth={1.5} className={o.color} />
@@ -1212,6 +1346,14 @@ function RaciMultiField({ label, selected, profiles, onChange }: RaciMultiFieldP
 function SelectPill({ value, onChange, label, colorClass, dotColor, options }: SelectPillProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const selectedIndex = options.findIndex((o) => o.value === value)
+  const { triggerRef, listRef, activeIndex, onTriggerKeyDown, onListKeyDown } = useListboxKeyboard({
+    open,
+    setOpen,
+    optionCount: options.length,
+    selectedIndex,
+    onSelect: (i) => { onChange(options[i].value); setOpen(false) },
+  })
 
   useEffect(() => {
     if (!open) return
@@ -1225,8 +1367,13 @@ function SelectPill({ value, onChange, label, colorClass, dotColor, options }: S
   return (
     <div ref={ref} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={onTriggerKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label}
         className={cn(
           'flex items-center gap-1.5 px-2.5 py-1 rounded-[3px] text-xs',
           'border border-compass-border bg-compass-surface hover:border-compass-border-strong',
@@ -1240,17 +1387,27 @@ function SelectPill({ value, onChange, label, colorClass, dotColor, options }: S
         <ChevronDown size={10} className="text-compass-dim" />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 left-0 min-w-[140px] bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-30 overflow-hidden">
-          {options.map((o) => (
+        <div
+          ref={listRef}
+          role="listbox"
+          tabIndex={-1}
+          onKeyDown={onListKeyDown}
+          className="absolute top-full mt-1 left-0 min-w-[140px] bg-compass-surface-2 border border-compass-border rounded-[4px] shadow-xl z-30 overflow-hidden focus:outline-none"
+        >
+          {options.map((o, i) => (
             <button
               key={o.value}
               type="button"
+              role="option"
+              aria-selected={o.value === value}
+              tabIndex={-1}
               onClick={() => { onChange(o.value); setOpen(false) }}
               className={cn(
-                'w-full text-left px-3 py-1.5 text-xs transition-colors',
+                'w-full text-left px-3 py-1.5 text-xs transition-colors focus:outline-none',
                 o.value === value
                   ? 'text-compass-text bg-compass-surface-3'
-                  : 'text-compass-muted hover:bg-compass-surface hover:text-compass-text'
+                  : 'text-compass-muted hover:bg-compass-surface hover:text-compass-text',
+                i === activeIndex && o.value !== value && 'bg-compass-surface text-compass-text'
               )}
             >
               {o.label}
