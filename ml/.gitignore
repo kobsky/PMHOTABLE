@@ -1,0 +1,13 @@
+# U1 ML workspace — keep heavy/derived artifacts out of git.
+.venv/
+__pycache__/
+*.pyc
+.cache/
+hf_cache/
+data/raw/
+data/external/
+# Large embedding models are downloaded from HuggingFace, never committed.
+models/encoder/
+# Small trained classifier (joblib) MAY be committed deliberately; large ones ignored:
+*.pt
+*.bin

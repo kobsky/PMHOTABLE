@@ -1,0 +1,121 @@
+
+======================================================================
+DATASET
+======================================================================
+total rows: 1100
+
+by class:
+label
+ops            220
+development    220
+support        220
+marketing      140
+research       100
+outreach       100
+design         100
+
+by source:
+source
+synthetic_en        370
+synthetic_pl        370
+hf_github_issues    360
+
+train=880  test=220  (stratified, seed=42)
+
+======================================================================
+EMBEDDING (frozen multilingual encoder)
+======================================================================
+model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+[embed] loading frozen encoder: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (cache=C:\Users\User\Desktop\PMHOTABLE\ml\hf_cache)
+embedding matrix: (1100, 384)
+
+======================================================================
+MODEL: LogisticRegression on frozen embeddings
+======================================================================
+
+>>> MODEL macro-F1 (test) = 0.8975
+
+per-class report (MODEL):
+              precision    recall  f1-score   support
+
+    research      1.000     1.000     1.000        20
+ development      0.821     0.727     0.771        44
+    outreach      1.000     1.000     1.000        20
+      design      0.909     1.000     0.952        20
+   marketing      1.000     0.964     0.982        28
+     support      0.787     0.841     0.813        44
+         ops      0.756     0.773     0.764        44
+
+    accuracy                          0.864       220
+   macro avg      0.896     0.901     0.898       220
+weighted avg      0.864     0.864     0.863       220
+
+confusion matrix (MODEL, rows=true, cols=pred):
+true\pred     resear  develo  outrea  design  market  suppor     ops
+research          20       0       0       0       0       0       0
+development        0      32       0       0       0       4       8
+outreach           0       0      20       0       0       0       0
+design             0       0       0      20       0       0       0
+marketing          0       1       0       0      27       0       0
+support            0       2       0       2       0      37       3
+ops                0       4       0       0       0       6      34
+
+======================================================================
+BASELINE: regex inferTaskType (same test set)
+======================================================================
+baseline 'unknown' (no-prediction) count: 49/220 (22.3%)
+
+>>> BASELINE macro-F1 (test) = 0.7621
+
+per-class report (BASELINE; 'unknown' counts as wrong):
+              precision    recall  f1-score   support
+
+    research      0.944     0.850     0.895        20
+ development      0.714     0.455     0.556        44
+    outreach      1.000     0.900     0.947        20
+      design      0.867     0.650     0.743        20
+   marketing      1.000     0.964     0.982        28
+     support      0.674     0.659     0.667        44
+         ops      0.818     0.409     0.545        44
+     unknown      0.000     0.000     0.000         0
+
+    accuracy                          0.645       220
+   macro avg      0.752     0.611     0.667       220
+weighted avg      0.824     0.645     0.713       220
+
+confusion matrix (BASELINE, rows=true, cols=pred):
+true\pred     resear  develo  outrea  design  market  suppor     ops  unknow
+research          17       0       0       0       0       0       0       3
+development        0      20       0       0       0      10       3      11
+outreach           0       0      18       0       0       0       0       2
+design             0       0       0      13       0       0       0       7
+marketing          0       0       0       1      27       0       0       0
+support            1       1       0       0       0      29       1      12
+ops                0       7       0       1       0       4      18      14
+unknown            0       0       0       0       0       0       0       0
+
+======================================================================
+HEAD-TO-HEAD (same held-out test set)
+======================================================================
+MODEL    macro-F1 = 0.8975
+BASELINE macro-F1 = 0.7621
+DELTA (model - baseline) = +0.1354
+model verdict vs thresholds: STRONG (>=0.70): reversal candidate.
+(NOTE: thresholds judge the MODEL's absolute macro-F1, per task spec.)
+
+======================================================================
+PL vs EN BREAKDOWN (test set)
+======================================================================
+macro-F1 below is computed over the classes PRESENT in each subset
+(HF source only covers development/support/ops).
+
+group                                        n  #cls  model_mF1   base_mF1
+synthetic_pl (Polish)                       76     7      1.000      0.834
+synthetic_en (English)                      78     7      0.972      0.992
+hf_github_issues (English, real)            66     3      0.581      0.139
+
+======================================================================
+ARTIFACT
+======================================================================
+saved classifier -> C:\Users\User\Desktop\PMHOTABLE\ml\models\clf.joblib
+(encoder is frozen + downloaded on demand from HuggingFace, not bundled)
