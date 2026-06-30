@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import { getAuthenticatedClient } from '@/lib/supabase/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
-import type { TaskStatus, TaskPriority, TaskType, TaskWithRelations, DbProject, TaskSize, RaciMatrix } from '@/lib/supabase/types'
+import type { TaskStatus, TaskPriority, TaskType, TaskWithRelations, TaskSize, RaciMatrix } from '@/lib/supabase/types'
 import { getZone } from '@/lib/velocity/tolerance'
 import { STORY_POINTS_LIMIT } from '@/lib/capacity'
 
@@ -11,7 +11,7 @@ const StoryPointsSchema = z.number().int().refine(
   (val) => [1, 2, 3, 5, 8, 13].includes(val),
   { message: 'Nieprawidłowa wartość story points (dozwolone: 1, 2, 3, 5, 8, 13)' }
 )
-import { MOCK_TASKS, MOCK_PROJECTS, enrichTask } from '@/lib/mock-data'
+import { MOCK_TASKS, enrichTask } from '@/lib/mock-data'
 
 // ---------------------------------------------------------------------------
 // Validation schemas
@@ -134,24 +134,6 @@ export async function getAllTasksWithRelations(): Promise<TaskWithRelations[]> {
 
   if (error) { console.error('getAllTasks:', error.message); return [] }
   return (data ?? []) as unknown as TaskWithRelations[]
-}
-
-export async function getProjects(): Promise<DbProject[]> {
-  const auth = await getAuthenticatedClient()
-
-  if (!auth) return MOCK_PROJECTS
-
-  const { supabase } = auth
-
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('is_archived', false)
-    .order('name')
-
-  if (error) { console.error('getProjects:', error.message); return [] }
-
-  return (data ?? []) as DbProject[]
 }
 
 // ---------------------------------------------------------------------------
@@ -482,19 +464,14 @@ export async function reorderColumn(
 
   if (taskIds.length === 0) return { error: null }
 
-  // Run all updates in parallel
-  const results = await Promise.all(
-    taskIds.map((id, index) =>
-      auth.supabase
-        .from('tasks')
-        .update({ position: index })
-        .eq('id', id)
-        .is('deleted_at', null)
-    )
-  )
+  // ONE batch upsert (top→bottom = position 0..n) — mirrors reorderSubtasks.
+  const rows = taskIds.map((id, index) => ({ id, position: index }))
 
-  const failed = results.find((r) => r.error)
-  if (failed?.error) return { error: failed.error.message }
+  const { error } = await auth.supabase
+    .from('tasks')
+    .upsert(rows)
+
+  if (error) return { error: error.message }
 
   revalidatePath('/board')
   return { error: null }
