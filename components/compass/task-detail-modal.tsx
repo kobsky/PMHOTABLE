@@ -4,7 +4,7 @@ import { useState, useTransition, useRef, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { toast } from 'sonner'
 import { cn, formatDate, scopeColor, inferTaskType, getTaskTypeLabel, getTaskTypeIcon } from '@/lib/utils'
-import { updateTask, deleteTask, createSubtask, updateSubtaskStatus, removeSubtask, moveTaskToCycle, updateTaskStoryPoints } from '@/app/actions/tasks'
+import { updateTask, deleteTask, createSubtask, updateSubtaskStatus, removeSubtask, reorderSubtasks, moveTaskToCycle, updateTaskStoryPoints } from '@/app/actions/tasks'
 import { logAIFeedback, getAssigneeRecommendation } from '@/app/actions/ai'
 import type { AssigneeSuggestion } from '@/app/actions/ai'
 import { AssigneeSuggestions } from '@/components/compass/assignee-suggestions'
@@ -344,13 +344,25 @@ export function TaskDetailModal({
   }
 
   function handleMoveSubtask(subId: string, dir: 'up' | 'down') {
-    const idx = localSubtasks.findIndex((s) => s.id === subId)
+    const prevList = localSubtasks
+    const idx = prevList.findIndex((s) => s.id === subId)
     if (idx === -1) return
     const newIdx = dir === 'up' ? idx - 1 : idx + 1
-    if (newIdx < 0 || newIdx >= localSubtasks.length) return
-    const newList = [...localSubtasks]
+    if (newIdx < 0 || newIdx >= prevList.length) return
+    const newList = [...prevList]
     ;[newList[idx], newList[newIdx]] = [newList[newIdx], newList[idx]]
     setLocalSubtasks(newList)
+
+    // Don't persist if any subtask is still an unsaved temp row (no real id yet)
+    if (newList.some((s) => s.id.startsWith('temp-'))) return
+
+    startTransition(async () => {
+      const { error } = await reorderSubtasks(task.id, newList.map((s) => s.id))
+      if (error) {
+        setLocalSubtasks(prevList)
+        toast.error('Nie udało się zmienić kolejności podzadań')
+      }
+    })
   }
 
   // ---------------------------------------------------------------------------

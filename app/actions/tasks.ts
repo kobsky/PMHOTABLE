@@ -500,6 +500,30 @@ export async function reorderColumn(
   return { error: null }
 }
 
+// Persists subtask order in ONE batch upsert (top→bottom = position 0..n)
+export async function reorderSubtasks(
+  parentTaskId: string,
+  orderedSubtaskIds: string[]
+): Promise<{ error: string | null }> {
+  const auth = await getAuthenticatedClient()
+  if (!auth) return { error: 'Brak autoryzacji' }
+
+  if (orderedSubtaskIds.length === 0) return { error: null }
+
+  const rows = orderedSubtaskIds.map((id, index) => ({ id, position: index }))
+
+  const { error } = await auth.supabase
+    .from('tasks')
+    .upsert(rows)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/board')
+  revalidatePath('/my-day')
+  revalidatePath('/backlog')
+  return { error: null }
+}
+
 // ---------------------------------------------------------------------------
 // BULK ACTIONS
 // ---------------------------------------------------------------------------
